@@ -373,9 +373,9 @@ function CharacterCard({ character, showRarity = true, className = '' }: { chara
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
           loading="lazy"
         />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+        <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-4">
           <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">
-            #{character.favourites.toLocaleString()} favoritos
+            ❤ {character.favourites.toLocaleString()}
           </span>
         </div>
         {showRarity && (
@@ -387,15 +387,15 @@ function CharacterCard({ character, showRarity = true, className = '' }: { chara
         )}
       </div>
       <div className="p-4 flex flex-col flex-1">
-        <h3 className={`text-lg font-semibold mb-2 line-clamp-2 ${colors.text}`}>
+        <h3 className="text-lg font-semibold mb-2 line-clamp-2 text-white">
           {character.name.full}
           {character.name.native && (
-            <span className="text-sm font-normal text-gray-500 dark:text-gray-400 block">
-              {character.name.native}
+              <span className="text-sm font-normal text-gray-300 block">
+                {character.name.native}
             </span>
           )}
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-auto flex items-center gap-1">
+        <p className="text-sm text-gray-300 mt-auto flex items-center gap-1">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
           </svg>
@@ -446,7 +446,7 @@ function CardFront({ character, rarityColor, isHighRarity = false }: { character
         />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
           <span className="text-white text-xs font-medium bg-black/50 px-2 py-1 rounded">
-            #{character.favourites.toLocaleString()} favoritos
+            ❤ {character.favourites.toLocaleString()}
           </span>
         </div>
         <div className="absolute top-2 left-2 right-2 flex justify-between">
@@ -456,11 +456,11 @@ function CardFront({ character, rarityColor, isHighRarity = false }: { character
         </div>
       </div>
       <div className="p-3 flex flex-col flex-1 min-h-0">
-        <h3 className={`text-base font-semibold mb-1 line-clamp-2 ${colors.text}`}>
+        <h3 className="text-base font-semibold mb-1 line-clamp-2 text-white">
           {character.name.full}
           {character.name.native && (
-            <span className="text-xs font-normal text-gray-500 dark:text-gray-400 block">
-              {character.name.native}
+          <span className="text-xs font-normal text-gray-300 block">
+            {character.name.native}
             </span>
           )}
         </h3>
@@ -861,7 +861,7 @@ function SummaryScreen({
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+        <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3">
                         <span className="text-white text-xs font-medium bg-black/50 px-2 py-1 rounded">
                           #{card.favourites.toLocaleString()} favoritos
                         </span>
@@ -881,7 +881,7 @@ function SummaryScreen({
                           </span>
                         )}
                       </h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-auto flex items-center gap-1">
+        <p className="text-xs text-gray-300 mt-auto flex items-center gap-1">
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                         </svg>
