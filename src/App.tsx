@@ -475,48 +475,57 @@ function CardFront({ character, rarityColor, isHighRarity = false }: { character
   )
 }
 
-function CardBack({ rarityColor }: { rarityColor: string }) {
+function CardBack() {
   return (
-    <div className="absolute inset-0 rounded-2xl border-4 overflow-hidden flex flex-col backface-hidden" style={{
-      background: `linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%)`,
-      borderColor: rarityColor,
-      boxShadow: `0 0 30px ${rarityColor}80, inset 0 0 60px ${rarityColor}40, 0 20px 40px rgba(0,0,0,0.5)`,
+    <div className="absolute inset-0 rounded-2xl border-4 overflow-hidden backface-hidden" style={{
+      background: `linear-gradient(145deg, #1a0a2e 0%, #16213e 50%, #0f0f23 100%)`,
+      borderColor: '#666666',
+      boxShadow: `0 0 30px rgba(0,0,0,0.5), inset 0 0 60px rgba(0,0,0,0.3)`,
       transformStyle: 'preserve-3d',
     }}>
       <div className="absolute inset-0" style={{
-        background: `radial-gradient(ellipse at center, ${rarityColor}30 0%, transparent 70%)`
+        background: `radial-gradient(ellipse at center, rgba(255,255,255,0.08) 0%, transparent 70%)`
       }} />
-      <div className="absolute inset-0 flex flex-col items-center justify-center p-6" style={{ transformStyle: 'preserve-3d' }}>
-        <div className="text-center">
-          <svg width="80" height="80" viewBox="0 0 100 100" style={{ filter: `drop-shadow(0 0 20px ${rarityColor})` }}>
-            <defs>
-              <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: rarityColor }} />
-                <stop offset="100%" style={{ stopColor: '#fff' }} />
-              </linearGradient>
-            </defs>
-            <polygon points="50,5 62,35 95,38 70,60 78,95 50,75 22,95 30,60 5,38 38,35" 
-              fill="url(#starGradient)" stroke="#fff" strokeWidth="2" />
-          </svg>
-          <p className="mt-4 text-lg font-bold tracking-wider text-white" style={{ 
-            textShadow: `0 0 10px ${rarityColor}, 0 0 20px ${rarityColor}`,
-            background: `linear-gradient(135deg, ${rarityColor}, #fff)`,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-          }}>
-            ANIMEPULL
-          </p>
-          <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest">Booster Pack</p>
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        transformStyle: 'preserve-3d',
+        textAlign: 'center',
+        width: '100%',
+      }}>
+        <svg width="80" height="80" viewBox="0 0 100 100" style={{ filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.5))' }}>
+          <defs>
+            <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#fff' }} />
+              <stop offset="100%" style={{ stopColor: '#fff' }} />
+            </linearGradient>
+          </defs>
+          <polygon points="50,5 62,35 95,38 70,60 78,95 50,75 22,95 30,60 5,38 38,35" 
+            fill="url(#starGradient)" stroke="#fff" strokeWidth="2" />
+        </svg>
+        <p className="mt-4 text-lg font-bold tracking-wider text-white" style={{ 
+          textShadow: '0 0 10px rgba(255,255,255,0.5)',
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.2), #fff)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
+        }}>
+          ANIMEPULL
+        </p>
+        <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest">Booster Pack</p>
+      </div>
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2" style={{ zIndex: 5 }}>
+        <p className="text-xs text-gray-400">Clique para revelar</p>
+        <div className="flex gap-2">
+          <div className="w-2 h-2 rounded-full" style={{ background: '#666666', boxShadow: '0 0 10px rgba(102,102,102,0.5)' }} />
+          <div className="w-2 h-2 rounded-full" style={{ background: '#666666', boxShadow: '0 0 10px rgba(102,102,102,0.5)', opacity: 0.7 }} />
+          <div className="w-2 h-2 rounded-full" style={{ background: '#666666', boxShadow: '0 0 10px rgba(102,102,102,0.5)', opacity: 0.4 }} />
         </div>
       </div>
-      <div className="absolute bottom-6 left-6 right-6 flex items-center justify-center gap-2" style={{ zIndex: 5 }}>
-        <div className="w-2 h-2 rounded-full" style={{ background: rarityColor, boxShadow: `0 0 10px ${rarityColor}` }} />
-        <div className="w-2 h-2 rounded-full" style={{ background: rarityColor, boxShadow: `0 0 10px ${rarityColor}`, opacity: 0.7 }} />
-        <div className="w-2 h-2 rounded-full" style={{ background: rarityColor, boxShadow: `0 0 10px ${rarityColor}`, opacity: 0.4 }} />
-      </div>
       <div className="absolute inset-0 rounded-2xl" style={{
-        background: `linear-gradient(145deg, ${rarityColor}20 0%, transparent 50%, ${rarityColor}10 100%)`,
+        background: `linear-gradient(145deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)`,
         opacity: 0.3,
         animation: 'pulse-glow 2s ease-in-out infinite',
       }} />
@@ -678,19 +687,8 @@ function FlipCard({ character, index, delay = 0, onFlipped }: { character: Chara
         className="absolute inset-0"
       >
         <CardFront character={character} rarityColor={rarityColor} isHighRarity={isHighRarity} />
-        <CardBack rarityColor={rarityColor} />
+        <CardBack />
       </motion.div>
-
-      {!flipped && (
-        <motion.div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center text-xs text-gray-400"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: delay * 0.1 + 0.8, duration: 0.4 }}
-        >
-          Clique para revelar
-        </motion.div>
-      )}
 
       {flipped && isMythic && (
         <motion.div
