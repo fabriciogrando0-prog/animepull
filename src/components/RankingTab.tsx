@@ -12,7 +12,7 @@ export function RankingTab({ characters, getRarityStats }: RankingTabProps) {
     <div className="space-y-12 text-gray-200">
       <div>
         <h2 className="text-2xl font-bold text-white mb-6">Tabela de Raridades</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {['Mítico', 'Lendário', 'Épico', 'Raro', 'Incomum', 'Comum'].map(rarity => (
             <RarityBadge key={rarity} rarity={rarity as Rarity} />
           ))}
@@ -21,10 +21,10 @@ export function RankingTab({ characters, getRarityStats }: RankingTabProps) {
 
       <div>
         <h2 className="text-2xl font-bold text-white mb-6">Estatísticas do Pool Atual</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {getRarityStats().map(({ rarity, count, weight }) => {
             return (
-              <div key={rarity} className="p-4 rounded-lg border border-gray-700 bg-[#0b0b14]/50 text-center">
+              <div key={rarity} className="p-4 rounded-lg border border-gray-700 bg-gray-900 text-center">
                 <div className="text-3xl font-bold text-white">{count}</div>
                 <div className="text-sm font-medium text-gray-300">{rarity}</div>
                 <div className="text-xs text-gray-500">{weight}% chance</div>

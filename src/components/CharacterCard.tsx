@@ -14,7 +14,7 @@ export function CharacterCard({ character, showRarity = true, className = '' }: 
   const colors = RARITY_COLORS[rarity]
 
   return (
-    <div className={`relative rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full border-2 ${colors.border} ${colors.bg} ${colors.glow} ${className}`}>
+    <div className={`relative rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full border-2 ${colors.border} bg-gray-900 ${colors.glow} ${className}`}>
       <div className="relative h-64 w-full overflow-hidden">
         <img
           src={character.image.large}
