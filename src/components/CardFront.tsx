@@ -78,25 +78,18 @@ export function CardFront({ character, rarityColor, isHighRarity = false }: Card
 
 export function CardBack() {
   return (
-    <div className="absolute inset-0 rounded-2xl border-4 overflow-hidden backface-hidden" style={{
-      background: `linear-gradient(145deg, #1a0a2e 0%, #16213e 50%, #0f0f23 100%)`,
-      borderColor: '#666666',
-      boxShadow: `0 0 30px rgba(0,0,0,0.5), inset 0 0 60px rgba(0,0,0,0.3)`,
+    <div className="absolute inset-0 rounded-2xl border-4 border-gray-400/30 overflow-hidden backface-hidden flex flex-col items-center justify-center p-6 text-center" style={{
+      background: `
+        #0a0a16,
+        repeating-radial-gradient(circle at 50% 50%, transparent, transparent 2px, rgba(255, 255, 255, 0.02) 2px, rgba(255, 255, 255, 0.02) 4px),
+        repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.025) 0%, rgba(255, 255, 255, 0.025) 4deg, transparent 4deg, transparent 12deg)
+      `,
+      borderColor: '#9ca3af',
+      boxShadow: `0 0 30px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 0 60px rgba(0,0,0,0.3)`,
       transformStyle: 'preserve-3d',
     }}>
-      <div className="absolute inset-0" style={{
-        background: `radial-gradient(ellipse at center, rgba(255,255,255,0.08) 0%, transparent 70%)`
-      }} />
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        transformStyle: 'preserve-3d',
-        textAlign: 'center',
-        width: '100%',
-      }}>
-        <svg width="80" height="80" viewBox="0 0 100 100" style={{ filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.5))' }}>
+      <div className="relative mb-8 flex flex-col items-center justify-center">
+        <svg width="80" height="80" viewBox="0 0 100 100" className="drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">
           <defs>
             <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style={{ stopColor: '#fff' }} />
@@ -106,30 +99,17 @@ export function CardBack() {
           <polygon points="50,5 62,35 95,38 70,60 78,95 50,75 22,95 30,60 5,38 38,35" 
             fill="url(#starGradient)" stroke="#fff" strokeWidth="2" />
         </svg>
-        <p className="mt-4 text-lg font-bold tracking-wider text-white" style={{
-          textShadow: '0 0 10px rgba(255,255,255,0.5)',
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.2), #fff)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text'
-        }}>
-          ANIMEPULL
-        </p>
-        <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest">Booster Pack</p>
+        <h2 className="mt-6 text-xl font-bold text-white tracking-widest">ANIMEPULL</h2>
+        <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest">BOOSTER PACK</p>
       </div>
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2" style={{ zIndex: 5 }}>
-        <p className="text-xs text-gray-400">Clique para revelar</p>
+      <div className="mt-12 flex flex-col items-center gap-2">
+        <p className="text-xs text-gray-500">Clique para revelar</p>
         <div className="flex gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ background: '#666666', boxShadow: '0 0 10px rgba(102,102,102,0.5)' }} />
-          <div className="w-2 h-2 rounded-full" style={{ background: '#666666', boxShadow: '0 0 10px rgba(102,102,102,0.5)', opacity: 0.7 }} />
-          <div className="w-2 h-2 rounded-full" style={{ background: '#666666', boxShadow: '0 0 10px rgba(102,102,102,0.5)', opacity: 0.4 }} />
+          <div className="w-2 h-2 rounded-full bg-gray-500" />
+          <div className="w-2 h-2 rounded-full bg-gray-500/70" />
+          <div className="w-2 h-2 rounded-full bg-gray-500/40" />
         </div>
       </div>
-      <div className="absolute inset-0 rounded-2xl" style={{
-        background: `linear-gradient(145deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)`,
-        opacity: 0.3,
-        animation: 'pulse-glow 2s ease-in-out infinite',
-      }} />
     </div>
   )
 }
