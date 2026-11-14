@@ -78,18 +78,14 @@ export function CardFront({ character, rarityColor, isHighRarity = false }: Card
 
 export function CardBack() {
   return (
-    <div className="absolute inset-0 rounded-2xl border-4 border-gray-400/30 overflow-hidden backface-hidden flex flex-col items-center justify-center p-6 text-center" style={{
-      background: `
-        #0a0a16,
-        repeating-radial-gradient(circle at 50% 50%, transparent, transparent 2px, rgba(255, 255, 255, 0.02) 2px, rgba(255, 255, 255, 0.02) 4px),
-        repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.025) 0%, rgba(255, 255, 255, 0.025) 4deg, transparent 4deg, transparent 12deg)
-      `,
-      borderColor: '#9ca3af',
+    <div className="absolute inset-0 rounded-2xl border-4 overflow-hidden backface-hidden flex flex-col items-center justify-center p-6 text-center" style={{
+      background: 'var(--surface)',
+      borderColor: 'var(--accent)',
       boxShadow: `0 0 30px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 0 60px rgba(0,0,0,0.3)`,
       transformStyle: 'preserve-3d',
     }}>
       <div className="relative mb-8 flex flex-col items-center justify-center">
-        <svg width="80" height="80" viewBox="0 0 100 100" className="drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">
+        <svg width="80" height="80" viewBox="0 0 100 100" className={`drop-shadow-[0_0_20px_var(--accent)]`}>
           <defs>
             <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style={{ stopColor: '#fff' }} />
@@ -97,7 +93,7 @@ export function CardBack() {
             </linearGradient>
           </defs>
           <polygon points="50,5 62,35 95,38 70,60 78,95 50,75 22,95 30,60 5,38 38,35" 
-            fill="url(#starGradient)" stroke="#fff" strokeWidth="2" />
+            fill="url(#starGradient)" stroke="var(--accent)" strokeWidth="2" />
         </svg>
         <h2 className="mt-6 text-xl font-bold text-white tracking-widest">ANIMEPULL</h2>
         <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest">BOOSTER PACK</p>
@@ -105,9 +101,9 @@ export function CardBack() {
       <div className="mt-12 flex flex-col items-center gap-2">
         <p className="text-xs text-gray-500">Clique para revelar</p>
         <div className="flex gap-2">
-          <div className="w-2 h-2 rounded-full bg-gray-500" />
-          <div className="w-2 h-2 rounded-full bg-gray-500/70" />
-          <div className="w-2 h-2 rounded-full bg-gray-500/40" />
+          <div className="w-2 h-2 rounded-full bg-[var(--accent)]" />
+          <div className="w-2 h-2 rounded-full bg-[var(--accent)]/70" />
+          <div className="w-2 h-2 rounded-full bg-[var(--accent)]/40" />
         </div>
       </div>
     </div>

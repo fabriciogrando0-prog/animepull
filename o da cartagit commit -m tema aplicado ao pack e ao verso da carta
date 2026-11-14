@@ -1,0 +1,15 @@
+warning: in the working copy of 'src/App.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/AppShell.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/CardFront.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/PacksTab.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/SummaryScreen.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/style.css', LF will be replaced by CRLF the next time Git touches it
+ src/App.tsx                      | 13 [32m++++++++++[m[31m---[m
+ src/components/AppShell.tsx      | 10 [32m+++++[m[31m-----[m
+ src/components/CardFront.tsx     | 20 [32m++++++++[m[31m------------[m
+ src/components/PacksTab.tsx      | 23 [32m+++++++++++[m[31m------------[m
+ src/components/SummaryScreen.tsx | 25 [32m+++++++[m[31m------------------[m
+ src/main.tsx                     |  5 [32m++++[m[31m-[m
+ src/style.css                    |  2 [32m+[m[31m-[m
+ 7 files changed, 46 insertions(+), 52 deletions(-)

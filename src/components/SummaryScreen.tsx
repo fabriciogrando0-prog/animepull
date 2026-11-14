@@ -57,14 +57,7 @@ export function SummaryScreen({ cards, onOpenAnother, onClose }: SummaryScreenPr
               backgroundClip: 'text',
             }}
           >
-            {highestRarity} Pull Detectado! &nbsp;
-            <span className="relative px-3 py-1 ml-2 text-sm font-bold uppercase tracking-wider rounded-full" style={{
-              background: `linear-gradient(135deg, ${glowColor}, ${rarityColors.primary})`,
-              color: '#000',
-              boxShadow: `0 0 20px ${glowColor}80`,
-            }}>
-              {highestRarity}
-            </span>
+            {highestRarity} Pull Detectado!
           </motion.p>
         </div>
 
@@ -72,12 +65,9 @@ export function SummaryScreen({ cards, onOpenAnother, onClose }: SummaryScreenPr
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="overflow-x-auto pb-4 -mx-4 px-4"
+          className="pb-4 px-4"
         >
-          <div className="flex gap-4 min-w-max" style={{
-            scrollSnapType: 'x mandatory',
-            WebkitOverflowScrolling: 'touch',
-          }}>
+          <div className="flex flex-wrap gap-3 w-full max-w-6xl mx-auto">
             {cards.map((card, index) => {
               const rarity = card.rarity || 'Comum'
               const colors = RARITY_COLORS[rarity]
@@ -91,8 +81,7 @@ export function SummaryScreen({ cards, onOpenAnother, onClose }: SummaryScreenPr
                   initial={{ opacity: 0, y: 30, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ delay: 0.4 + index * 0.1, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-                  className="flex-shrink-0 w-64 sm:w-72"
-                  style={{ scrollSnapAlign: 'center' }}
+                  className="flex-1 min-w-0 w-full max-w-xs"
                 >
                   <div className={`relative rounded-2xl border-4 overflow-hidden flex flex-col h-full ${colors.border} ${colors.glow}`} style={{
                     background: `linear-gradient(145deg, #0a0a12 0%, #121220 30%, #1a1a2e 60%, #0f0f1a 100%)`,
@@ -125,7 +114,7 @@ export function SummaryScreen({ cards, onOpenAnother, onClose }: SummaryScreenPr
                       />
                       <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3">
                         <span className="text-white text-xs font-medium bg-black/50 px-2 py-1 rounded">
-                          #{card.favourites.toLocaleString()} favoritos
+                          ❤ {card.favourites.toLocaleString()}
                         </span>
                       </div>
                       <div className="absolute top-2 left-2 right-2 flex justify-between">
@@ -135,10 +124,10 @@ export function SummaryScreen({ cards, onOpenAnother, onClose }: SummaryScreenPr
                       </div>
                     </div>
                     <div className="p-3 flex flex-col flex-1 min-h-0">
-                      <h3 className={`text-base font-semibold mb-1 line-clamp-2 ${colors.text}`}>
+                      <h3 className="text-base font-semibold mb-1 line-clamp-2 text-white">
                         {card.name.full}
                         {card.name.native && (
-                          <span className="text-xs font-normal text-gray-500 dark:text-gray-400 block">
+                          <span className="text-xs font-normal text-gray-300 block">
                             {card.name.native}
                           </span>
                         )}
