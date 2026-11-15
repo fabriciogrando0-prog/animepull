@@ -15,7 +15,11 @@ export function CardFront({ character, rarityColor, isHighRarity = false }: Card
   const colors = RARITY_COLORS[rarity]
 
   return (
-    <div className="absolute inset-0 rounded-2xl border-4 overflow-hidden flex flex-col backface-hidden" style={{
+    <div className="rounded-2xl border-4 overflow-hidden flex flex-col" style={{
+      position: 'absolute',
+      inset: '0',
+      backfaceVisibility: 'hidden',
+      WebkitBackfaceVisibility: 'hidden',
       background: `linear-gradient(145deg, #0a0a12 0%, #121220 30%, #1a1a2e 60%, #0f0f1a 100%)`,
       borderColor: rarityColor,
       boxShadow: `0 0 30px ${rarityColor}80, inset 0 0 60px ${rarityColor}40, 0 20px 40px rgba(0,0,0,0.5)`,

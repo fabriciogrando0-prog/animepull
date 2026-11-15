@@ -19,8 +19,12 @@ export function CardBack({ theme }: { theme?: Theme } = {}) {
 
   return (
     <div
-      className="absolute inset-0 rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 text-center"
+      className="rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 text-center"
       style={{
+        position: 'absolute',
+        inset: '0',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
         background: `linear-gradient(180deg, ${C.surface}, ${dark})`,
         border: `5px solid ${C.accent}`,
         outline: `1px solid ${C.accent}`,
