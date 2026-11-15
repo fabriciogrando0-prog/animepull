@@ -4,6 +4,7 @@ import type { Character, Rarity } from './RarityBadge'
 import { RARITY_COLORS, getHighestRarity } from './RarityBadge'
 import { FlipCard } from './FlipCard'
 import { Particle } from './Particle'
+import { PackArt } from './PackArt'
 
 interface PackOpeningScreenProps {
   cards: Character[]
@@ -77,8 +78,8 @@ export function PackOpeningScreen({
       ref={containerRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ background: 'rgba(0, 0, 0, 0.95)' }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center"
+      style={{ background: '#05050a' }}
     >
       <AnimatePresence mode="wait">
         {(phase === 'shaking' || phase === 'tearing' || phase === 'exploding') && (
@@ -104,81 +105,7 @@ export function PackOpeningScreen({
             style={{ transformOrigin: 'center bottom', zIndex: 10 }}
             className="relative w-72 h-96 sm:w-80 sm:h-112"
           >
-            <div className="absolute inset-0 rounded-2xl overflow-hidden" style={{
-              background: 'linear-gradient(145deg, #0a0a12 0%, #121220 30%, #1a1a2e 60%, #0f0f1a 100%)',
-              boxShadow: `0 0 60px ${glowColor}60, 0 30px 60px rgba(0,0,0,0.6)`,
-              border: '2px solid',
-              borderImage: `linear-gradient(135deg, ${glowColor}, ${rarityColors.primary}) 1`,
-              transformStyle: 'preserve-3d',
-            }}>
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-8">
-                <svg width="100" height="100" viewBox="0 0 120 120" style={{ filter: `drop-shadow(0 0 30px ${glowColor})` }}>
-                  <defs>
-                    <linearGradient id="tearStar" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor={rarityColors.primary} />
-                      <stop offset="50%" stopColor={rarityColors.secondary} />
-                      <stop offset="100%" stopColor={glowColor} />
-                    </linearGradient>
-                    <filter id="tearGlow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feGaussianBlur stdDeviation="6" result="coloredBlur" />
-                      <feMerge>
-                        <feMergeNode in="coloredBlur" />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
-                  </defs>
-                  <g filter="url(#tearGlow)">
-                    <polygon points="60,12 73,46 108,52 81,78 88,112 60,95 32,112 39,78 12,52 47,46"
-                      fill="url(#tearStar)" stroke="#fff" strokeWidth="3" />
-                    <circle cx="60" cy="60" r="18" fill="rgba(255,255,255,0.2)" stroke={glowColor} strokeWidth="2" />
-                    <text x="60" y="66" fontSize="24" fontWeight="bold" fill="#fff" textAnchor="middle" fontFamily="system-ui" style={{ textShadow: `0 0 10px ${glowColor}` }}>
-                      ★
-                    </text>
-                  </g>
-                </svg>
-                <p className="mt-6 text-2xl sm:text-3xl font-black uppercase tracking-widest text-white" style={{
-                  background: `linear-gradient(135deg, ${glowColor}, ${rarityColors.primary}, #fff)`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}>
-                  ANIMEPULL
-                </p>
-              </div>
-              {phase === 'tearing' && (
-                <motion.svg
-                  className="absolute inset-0"
-                  viewBox="0 0 320 448"
-                  initial={{ opacity: 0, pathLength: 0 }}
-                  animate={{ opacity: 1, pathLength: 1 }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
-                  style={{ filter: `drop-shadow(0 0 20px ${glowColor})` }}
-                >
-                  <defs>
-                    <linearGradient id="tearLine" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor={glowColor} stopOpacity={0} />
-                      <stop offset="50%" stopColor={glowColor} stopOpacity={1} />
-                      <stop offset="100%" stopColor={rarityColors.primary} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M160,0 Q180,80 160,160 Q140,240 160,320 Q180,400 160,448"
-                    stroke="url(#tearLine)"
-                    strokeWidth="4"
-                    fill="none"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M160,0 Q140,80 160,160 Q180,240 160,320 Q140,400 160,448"
-                    stroke="url(#tearLine)"
-                    strokeWidth="3"
-                    fill="none"
-                    strokeLinecap="round"
-                    style={{ opacity: 0.7 }}
-                  />
-                </motion.svg>
-              )}
-            </div>
+            <PackArt onClick={() => {}} />
           </motion.div>
         )}
       </AnimatePresence>
