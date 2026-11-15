@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import type { Theme } from './types'
 
-const PACK_HEIGHT = 'min(62vh, 560px)'
+const PACK_HEIGHT = 'min(55vh, 520px)'
 const shadow = 'drop-shadow(0 18px 24px rgba(0,0,0,0.5))'
 
 export function PackArt({ theme, onClick }: { theme: Theme; onClick: () => void }) {
@@ -33,7 +33,6 @@ export function PackArt({ theme, onClick }: { theme: Theme; onClick: () => void 
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
       onMouseEnter={() => setHovered(true)}
-      whileTap={{ scale: 0.98 }}
       type="button"
       style={{
         background: 'none',
@@ -53,8 +52,6 @@ export function PackArt({ theme, onClick }: { theme: Theme; onClick: () => void 
     >
       <div
         style={{
-          width: '100%',
-          height: '100%',
           transform: `rotateX(${-my * 8}deg) rotateY(${mx * 8}deg)`,
           transition: 'transform 0.15s ease-out',
           transformStyle: 'preserve-3d',
@@ -92,7 +89,7 @@ export function PackArt({ theme, onClick }: { theme: Theme; onClick: () => void 
               onError={() => setError(true)}
               style={{
                 width: 'auto',
-                height: '100%',
+                height: PACK_HEIGHT,
                 maxWidth: '90vw',
                 display: 'block',
                 objectFit: 'contain',
