@@ -43,7 +43,7 @@ export function FlipCard({ character, index, delay = 0, onFlipped }: FlipCardPro
         transformStyle: 'preserve-3d',
         perspective: 1000,
       }}
-      className="relative w-72 h-96 sm:w-80 sm:h-112 cursor-pointer flex-shrink-0 snap-center"
+      className="relative w-72 aspect-[2/3] sm:w-80 aspect-[2/3] cursor-pointer flex-shrink-0 snap-center"
       onClick={handleClick}
     >
       <AnimatePresence>
@@ -164,7 +164,7 @@ export function FlipCard({ character, index, delay = 0, onFlipped }: FlipCardPro
         }}
         className="absolute inset-0"
       >
-        <CardFront character={character} rarityColor={rarityColor} isHighRarity={isHighRarity} />
+        <CardFront character={character} isHighRarity={isHighRarity} />
         <CardBack />
       </motion.div>
 

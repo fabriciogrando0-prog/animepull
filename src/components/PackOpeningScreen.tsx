@@ -155,7 +155,7 @@ export function PackOpeningScreen({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="relative z-30 w-full overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory"
+            className="relative z-30 w-full overflow-visible pb-4 -mx-4 px-4 snap-x snap-mandatory"
             style={{ perspective: 1000 }}
           >
             <div className="flex items-center justify-center gap-2 sm:gap-4 min-w-max" style={{ transformStyle: 'preserve-3d' }}>

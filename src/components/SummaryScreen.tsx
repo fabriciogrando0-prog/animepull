@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import type { Character } from './RarityBadge'
 import { RARITY_COLORS, getHighestRarity } from './RarityBadge'
+import { RarityFrame } from './RarityFrame'
 
 interface SummaryScreenProps {
   cards: Character[]
@@ -67,7 +68,7 @@ export function SummaryScreen({ cards, onOpenAnother, onClose }: SummaryScreenPr
           transition={{ delay: 0.3, duration: 0.5 }}
           className="pb-4 px-4"
         >
-          <div className="flex flex-wrap gap-3 w-full max-w-6xl mx-auto">
+          <div className="flex flex-wrap gap-[2.72%] px-[2.72%] w-full max-w-6xl mx-auto">
             {cards.map((card, index) => {
               const rarity = card.rarity || 'Comum'
               const colors = RARITY_COLORS[rarity]
@@ -81,31 +82,28 @@ export function SummaryScreen({ cards, onOpenAnother, onClose }: SummaryScreenPr
                   initial={{ opacity: 0, y: 30, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ delay: 0.4 + index * 0.1, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-                  className="flex-1 min-w-0 w-full max-w-xs"
+                  className="min-w-0 w-full md:flex-none md:w-[16%] max-w-xs"
                 >
-                  <div className={`relative rounded-2xl border-4 overflow-hidden flex flex-col h-full ${colors.border} ${colors.glow}`} style={{
-                    background: `linear-gradient(145deg, #0a0a12 0%, #121220 30%, #1a1a2e 60%, #0f0f1a 100%)`,
-                    boxShadow: `0 0 30px ${colors.primary}80, inset 0 0 60px ${colors.primary}40, 0 20px 40px rgba(0,0,0,0.5)`,
-                    borderColor: colors.primary,
-                  }}>
-                    {isHighRarity && (
-                      <div className="absolute inset-0 overflow-hidden rounded-t-2xl pointer-events-none" style={{
-                        background: `linear-gradient(135deg, ${colors.primary}10 0%, transparent 50%, ${colors.secondary}10 100%)`,
-                        animation: 'holographic 3s ease-in-out infinite',
-                      }}>
-                        <div className="absolute inset-0" style={{
-                          background: `repeating-linear-gradient(
-                            0deg,
-                            transparent,
-                            transparent 2px,
-                            ${colors.primary}03 2px,
-                            ${colors.primary}03 4px
-                          )`,
-                          animation: 'scanlines 0.1s linear infinite',
-                        }} />
-                      </div>
-                    )}
-                    <div className="relative w-full h-5/6 overflow-hidden">
+                  <RarityFrame rarity={rarity}>
+                    <div className="flex flex-col h-full">
+                      {isHighRarity && (
+                        <div className="absolute inset-0 overflow-hidden rounded-t-2xl pointer-events-none" style={{
+                          background: `linear-gradient(135deg, ${colors.primary}10 0%, transparent 50%, ${colors.secondary}10 100%)`,
+                          animation: 'holographic 3s ease-in-out infinite',
+                        }}>
+                          <div className="absolute inset-0" style={{
+                            background: `repeating-linear-gradient(
+                              0deg,
+                              transparent,
+                              transparent 2px,
+                              ${colors.primary}03 2px,
+                              ${colors.primary}03 4px
+                            )`,
+                            animation: 'scanlines 0.1s linear infinite',
+                          }} />
+                        </div>
+                      )}
+                      <div className="relative w-full h-5/6 overflow-hidden">
                       <img
                         src={card.image.large}
                         alt={card.name.full}
@@ -140,7 +138,8 @@ export function SummaryScreen({ cards, onOpenAnother, onClose }: SummaryScreenPr
                       </p>
                     </div>
                   </div>
-                </motion.div>
+                </RarityFrame>
+              </motion.div>
               )
             })}
           </div>
