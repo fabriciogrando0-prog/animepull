@@ -12,6 +12,7 @@ export interface Palette {
 export interface Theme {
   id: string
   name: string
+  arquivo: string
   palette: Palette
   CardBack?: ComponentType<any> | ReactNode
   PackArt?: ComponentType<any> | ReactNode
