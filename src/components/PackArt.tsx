@@ -8,6 +8,11 @@ interface PackArtProps {
 export function PackArt({ onClick }: PackArtProps) {
   const { theme } = useTheme()
 
+  const CustomPackArt = theme.PackArt as React.ComponentType<any> | undefined
+  if (CustomPackArt) {
+    return <CustomPackArt onClick={onClick} />
+  }
+
   return (
     <motion.button
       onClick={onClick}

@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
 import type { Theme } from '../types'
 
+import arte from '/matsuri-pack.png'
+
 const C = {
   bg: '#0d1230',
   surface: '#1a1f4a',
@@ -31,28 +33,18 @@ export function PackArt({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className="w-full sm:w-[300px] aspect-[2/3] rounded-2xl border-2 border-white/20 flex flex-col items-center justify-center p-6 shadow-lg transition-all duration-200"
-      style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.accent2})` }}
+      className="w-full sm:w-[300px] rounded-2xl overflow-hidden shadow-lg transition-all duration-200 relative"
+      style={{
+        background: `radial-gradient(circle at center, rgba(240,184,74,0.15) 0%, transparent 70%)`,
+      }}
     >
-      <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}>
-        <svg width="240" height="360" viewBox="0 0 240 360" style={{ filter: 'drop-shadow(0 0 20px rgba(240,184,74,0.45))' }}>
-          <defs>
-            <path id="matsuriBody" d="M60,70 L120,42 L180,70 Q202,70 202,92 L202,308 Q202,328 180,328 L60,328 Q38,328 38,308 L38,92 Q38,72 60,70 Z" />
-            <pattern id="asanoha" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-              <path d="M10,2 L13,6 L18,6 L15,10 L17,14 L10,12 L3,14 L5,10 L2,6 L7,6 Z" fill={C.accent2} fillOpacity={0.25} />
-            </pattern>
-          </defs>
-          <use href="#matsuriBody" fill={C.accent} />
-          <use href="#matsuriBody" fill="url(#asanoha)" fillOpacity={0.25} />
-          <use href="#matsuriBody" fill="none" stroke={C.accent2} strokeWidth={2} />
-          <path d="M120,70 L120,38" stroke={C.accent2} strokeWidth={3} strokeLinecap="round" />
-          <ellipse cx="120" cy="26" rx="6" ry="3.5" fill="none" stroke={C.accent2} strokeWidth={3} strokeLinecap="round" />
-          <rect x="95" y="122" width="50" height="140" rx="10" fill={C.text} />
-          <text x="120" y="192" textAnchor="middle" fill={C.accent} fontFamily="system-ui, sans-serif" fontWeight="800" fontSize="13" letterSpacing={6}>
-            ANIMEPULL
-          </text>
-          <KitsuneMask x={120} y={276} scale={1} />
-        </svg>
+      <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }} className="relative z-10">
+        <img
+          src={arte}
+          alt="Arte do pack Matsuri"
+          draggable={false}
+          className="w-full sm:w-[300px] h-auto object-contain block"
+        />
       </motion.div>
     </motion.button>
   )

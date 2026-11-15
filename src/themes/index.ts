@@ -1,5 +1,6 @@
 import type { Theme } from './types'
 import { matsuriTheme } from './matsuri/matsuri'
+import { mangapopTheme } from './mangapop/mangapop'
 
 export const themes: Theme[] = [
   {
@@ -27,6 +28,7 @@ export const themes: Theme[] = [
     },
   },
   matsuriTheme,
+  mangapopTheme,
 ]
 
 export function pickRandomTheme(excludeId?: string): Theme {
