@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import type { Character, Rarity } from './RarityBadge'
 import { getHighestRarity } from './RarityBadge'
-import { CardFront, CardBack } from './CardFront'
 import { PackSlotsPanel } from './PackSlotsPanel'
 import { TearablePack } from './TearablePack'
+import { StackPhase } from './StackPhase'
 import { useTheme } from '../themes/ThemeContext'
 import { useEffects } from './EffectsContext'
 
@@ -13,9 +12,9 @@ type Phase = 'pack' | 'stack' | 'summary'
 interface PackOpeningScreenProps {
   cards: Character[]
   collection: Character[]
+  setCollection: React.Dispatch<React.SetStateAction<Character[]>>
   onComplete: () => void
   onCancel: () => void
-  onCardFlipped?: (index: number) => void
 }
 
 const RARITY_RGB: Record<Rarity, string> = {
@@ -30,15 +29,13 @@ const RARITY_RGB: Record<Rarity, string> = {
 export function PackOpeningScreen({
   cards,
   collection,
+  setCollection,
   onComplete,
   onCancel: _onCancel,
-  onCardFlipped,
 }: PackOpeningScreenProps) {
   const { theme } = useTheme()
   const { enabled: effectsEnabled } = useEffects()
   const [phase, setPhase] = useState<Phase>('pack')
-  const [stackIndex, setStackIndex] = useState(0)
-  const [flipped, setFlipped] = useState(false)
   const [tearing, setTearing] = useState(false)
   const [hidden, setHidden] = useState(false)
 
@@ -58,19 +55,14 @@ export function PackOpeningScreen({
     return () => clearTimeout(t)
   }, [tearing])
 
-  const nextStackCard = useCallback(() => {
-    if (!flipped) {
-      setFlipped(true)
-      onCardFlipped?.(stackIndex)
-      return
-    }
-    if (stackIndex >= cards.length - 1) {
-      setPhase('summary')
-      return
-    }
-    setStackIndex(stackIndex + 1)
-    setFlipped(false)
-  }, [flipped, stackIndex, cards.length, onCardFlipped])
+  const handleCardSave = useCallback((card: Character) => {
+    try {
+      setCollection((prev) => {
+        const ids = new Set(prev.map((c) => c.id))
+        return ids.has(card.id) ? prev : [...prev, card]
+      })
+    } catch {}
+  }, [setCollection])
 
   useEffect(() => {
     if (phase !== 'summary') return
@@ -83,13 +75,11 @@ export function PackOpeningScreen({
       e.preventDefault()
       if (phase === 'pack') {
         tearPack()
-      } else if (phase === 'stack') {
-        nextStackCard()
       }
     }
     window.addEventListener('keydown', onKeydown)
     return () => window.removeEventListener('keydown', onKeydown)
-  }, [phase, nextStackCard, tearPack])
+  }, [phase, tearPack])
 
   useEffect(() => {
     const onVis = () => setHidden(document.visibilityState === 'hidden')
@@ -151,31 +141,12 @@ export function PackOpeningScreen({
           </>
         )}
         {phase === 'stack' && (
-          <>
-            <p className="text-center text-gray-300 text-sm">
-              Toque na carta para virar (
-              <kbd style={kbd}>Espaço</kbd>)
-            </p>
-            <div
-              className="relative w-72 sm:w-80 aspect-[2/3] cursor-pointer select-none"
-              onClick={nextStackCard}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.code === 'Space') nextStackCard() }}
-            >
-              <AnimatePresence mode="popLayout">
-                {flipped ? (
-                  <motion.div key="front" initial={{ scale: 0.8 }} animate={{ scale: 1 }} exit={{ scale: 0.8 }}>
-                    <CardFront character={cards[stackIndex]} />
-                  </motion.div>
-                ) : (
-                  <motion.div key="back" initial={{ scale: 0.8 }} animate={{ scale: 1 }} exit={{ scale: 0.8 }}>
-                    <CardBack />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </>
+          <StackPhase
+            cards={cards}
+            collection={collection}
+            onSave={handleCardSave}
+            onComplete={() => setPhase('summary')}
+          />
         )}
       </div>
     </div>

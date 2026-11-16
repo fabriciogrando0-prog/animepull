@@ -4,12 +4,13 @@ import { CardBack } from './CardFront'
 import { useTheme } from '../themes/ThemeContext'
 
 interface PackSlotsPanelProps {
-  cards: Character[]
+  cards: (Character | null)[]
   collection: Character[]
   className?: string
+  slotRefs?: (HTMLDivElement | null)[]
 }
 
-export function PackSlotsPanel({ cards, collection, className }: PackSlotsPanelProps) {
+export function PackSlotsPanel({ cards, collection, className, slotRefs }: PackSlotsPanelProps) {
   const { theme } = useTheme()
   const surface = theme.palette.surface
   const accent = theme.palette.accent
@@ -35,6 +36,7 @@ export function PackSlotsPanel({ cards, collection, className }: PackSlotsPanelP
           return (
             <div
               key={i}
+              ref={(el) => { if (slotRefs) slotRefs[i] = el || null }}
               className="relative overflow-hidden rounded-xl aspect-[2/3]"
               style={{
                 border: filled ? `1px solid ${colors.primary}` : `1px solid ${accent}33`,

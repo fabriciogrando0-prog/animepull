@@ -96,6 +96,67 @@ export function TearablePack({
     if (!started) setStarted(true)
   }, [started])
 
+  const packRef = useRef<HTMLDivElement>(null)
+  const packWidthRef = useRef(0)
+  const startXRef = useRef(0)
+  const [dragging, setDragging] = useState(false)
+  const [dragX, setDragX] = useState(0)
+  const justDraggedRef = useRef(false)
+
+  const stripPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (isPaused || started) return
+    justDraggedRef.current = false
+    const rect = packRef.current?.getBoundingClientRect()
+    if (!rect) return
+    packWidthRef.current = rect.width
+    startXRef.current = e.clientX - rect.left
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setDragging(true)
+    setDragX(startXRef.current)
+  }, [isPaused, started])
+
+  const stripPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragging) return
+    const rect = packRef.current?.getBoundingClientRect()
+    if (!rect) return
+    packWidthRef.current = rect.width
+    setDragX(e.clientX - rect.left)
+  }, [dragging])
+
+  const stripPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragging) return
+    try { e.currentTarget.releasePointerCapture(e.pointerId) } catch {}
+    const rect = packRef.current?.getBoundingClientRect()
+    const width = rect ? rect.width : packWidthRef.current || 1
+    const dx = Math.abs((rect ? e.clientX - rect.left : dragX) - startXRef.current)
+    const progress = dx / width
+    setDragging(false)
+    if (dx < 8) {
+      start()
+    } else if (progress >= 0.7) {
+      justDraggedRef.current = true
+      start()
+    } else {
+      setDragX(startXRef.current)
+      justDraggedRef.current = true
+    }
+  }, [dragging, start, dragX])
+
+  const stripPointerCancel = useCallback(() => {
+    if (!dragging) return
+    setDragging(false)
+    setDragX(startXRef.current)
+    justDraggedRef.current = true
+  }, [dragging])
+
+  const onPackClick = useCallback(() => {
+    if (justDraggedRef.current) {
+      justDraggedRef.current = false
+      return
+    }
+    start()
+  }, [start])
+
   useEffect(() => {
     if (!started) return
     const particlesT = setTimeout(() => setExploding(true), 560)
@@ -107,6 +168,10 @@ export function TearablePack({
       clearTimeout(endT)
     }
   }, [started, onTearComplete])
+
+  const packWidth = Math.max(packWidthRef.current, 1)
+  const dragDX = dragX - startXRef.current
+  const tilt = dragging ? Math.sign(dragDX) * Math.min(Math.abs(dragDX) / packWidth, 1) * 6 : 0
 
   const packStyle: React.CSSProperties = {
     height: PACK_HEIGHT,
@@ -164,10 +229,37 @@ export function TearablePack({
     animationPlayState: playState,
   }
 
+  const stripStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: '100%',
+    height: '18%',
+    touchAction: 'none',
+    cursor: dragging ? 'grabbing' : 'grab',
+    zIndex: 4,
+  }
+
+  const dragLineStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: `${Math.min(Math.max(dragX, 0), packWidthRef.current || 0)}px`,
+    top: toPct(TEAR_Y),
+    width: '10px',
+    height: '16%',
+    transform: 'translate(-50%, -50%)',
+    background: color,
+    boxShadow: `0 0 8px ${color}, 0 0 20px ${color}80`,
+    clipPath: 'polygon(50% 0%, 72% 30%, 28% 30%, 72% 70%, 28% 70%, 50% 100%)',
+    zIndex: 3,
+    pointerEvents: 'none',
+  }
+
   const topStyle: React.CSSProperties = {
     ...BASE_IMG,
     clipPath: CLIP_TOP,
     zIndex: 2,
+    transform: dragging ? `rotate(${tilt}deg)` : 'none',
+    transition: 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
     animation: started ? 'pack-top-fly 0.4s ease-in 0.5s forwards' : 'none',
     animationPlayState: playState,
   }
@@ -184,11 +276,19 @@ export function TearablePack({
     <div
       className="tearable-pack"
       style={packStyle}
-      onClick={start}
+      onClick={onPackClick}
       role="button"
       tabIndex={0}
     >
       <img src={src} alt="" style={{ visibility: 'hidden', height: '100%', width: 'auto', display: 'block' }} aria-hidden="true" />
+      <div
+        ref={packRef}
+        style={stripStyle}
+        onPointerDown={stripPointerDown}
+        onPointerMove={stripPointerMove}
+        onPointerUp={stripPointerUp}
+        onPointerCancel={stripPointerCancel}
+      />
       <div style={squeezeStyle}>
         <div
           className="tear-piece"
@@ -214,6 +314,7 @@ export function TearablePack({
         />
         <div style={lineStyle} />
         <div style={beamsStyle} />
+        {dragging && <div style={dragLineStyle} />}
         {exploding && effectsEnabled && !isPaused && (
           <div
             style={{

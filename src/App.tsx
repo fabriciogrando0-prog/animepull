@@ -199,6 +199,8 @@ function addToCollection(cards: Character[]): void {
   }
 }
 
+export { addToCollection }
+
 function rollRarity(): Rarity {
   const rand = Math.random() * 100
   let cumulative = 0
@@ -250,6 +252,7 @@ export default function App() {
   const [showPack, setShowPack] = useState(false)
   const [packCards, setPackCards] = useState<Character[]>([])
   const [showSummary, setShowSummary] = useState(false)
+  const [collection, setCollection] = useState<Character[]>(getCollection())
   const [activeTab, setActiveTab] = useState<Tab>('Packs')
 
   const getRarityStats = useCallback(() => {
@@ -348,7 +351,8 @@ export default function App() {
       {showPack && packCards.length > 0 && (
         <PackOpeningScreen
           cards={packCards}
-          collection={getCollection()}
+          collection={collection}
+          setCollection={setCollection}
           onComplete={handlePackComplete}
           onCancel={handlePackCancel}
         />
