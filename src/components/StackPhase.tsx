@@ -4,7 +4,6 @@ import type { Character, Rarity } from './RarityBadge'
 import { RARITY_COLORS } from './RarityBadge'
 import { RarityFrame } from './RarityFrame'
 import { CardBack } from './CardFront'
-import { PackSlotsPanel } from './PackSlotsPanel'
 import { useTheme } from '../themes/ThemeContext'
 
 const RARITY_ORDER: Rarity[] = ['Comum', 'Incomum', 'Raro', 'Épico', 'Lendário', 'Mítico']
@@ -12,8 +11,8 @@ const CARD_HEIGHT = 'min(72vh, 640px)'
 
 interface StackPhaseProps {
   cards: Character[]
-  collection: Character[]
   onSave: (card: Character) => void
+  onReveal: (card: Character, index: number) => void
   onComplete: () => void
 }
 
@@ -26,7 +25,7 @@ const RARITY_RGB: Record<Rarity, string> = {
   Mítico: '244, 63, 94',
 }
 
-export function StackPhase({ cards, collection, onSave, onComplete }: StackPhaseProps) {
+export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhaseProps) {
   const { theme } = useTheme()
   const ordered = [...cards].sort(
     (a, b) => RARITY_ORDER.indexOf(a.rarity || 'Comum') - RARITY_ORDER.indexOf(b.rarity || 'Comum')
@@ -37,7 +36,6 @@ export function StackPhase({ cards, collection, onSave, onComplete }: StackPhase
   const [animating, setAnimating] = useState(false)
   const [showSkip, setShowSkip] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
-  const slotRefs = useRef<(HTMLDivElement | null)[]>(Array(5).fill(null))
 
   const current = ordered[stackIndex]
   const rarity = (current?.rarity || 'Comum') as Rarity
@@ -56,6 +54,7 @@ export function StackPhase({ cards, collection, onSave, onComplete }: StackPhase
     setFlipped(true)
     try {
       onSave(current)
+      onReveal(current, stackIndex)
     } catch {}
     setTimeout(() => setAnimating(false), 700)
   }
@@ -64,26 +63,12 @@ export function StackPhase({ cards, collection, onSave, onComplete }: StackPhase
     if (!current || animating || saving) return
     setAnimating(true)
     setSaving(true)
-    const rect = cardRef.current?.getBoundingClientRect()
-    const slot = slotRefs.current[stackIndex]
-    const sRect = slot?.getBoundingClientRect()
-    if (!rect || !sRect) {
-      setSaving(false)
-      setAnimating(false)
-      advance()
-      return
-    }
-    const dx = sRect.left - rect.left + (sRect.width - rect.width) / 2
-    const dy = sRect.top - rect.top + (sRect.height - rect.height) / 2
-    const scale = sRect.width / rect.width
-    const el = cardRef.current as HTMLElement
-    el.style.transition = 'all 0.6s ease-out'
-    el.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`
+    try {
+      onReveal(current, stackIndex)
+    } catch {}
     setTimeout(() => {
       setSaving(false)
       setAnimating(false)
-      el.style.transition = ''
-      el.style.transform = ''
       advance()
     }, 600)
   }
@@ -111,8 +96,11 @@ export function StackPhase({ cards, collection, onSave, onComplete }: StackPhase
 
   const doSkip = () => {
     setShowSkip(false)
-    ordered.forEach((c) => {
-      try { onSave(c) } catch {}
+    ordered.forEach((c, i) => {
+      try {
+        onSave(c)
+        onReveal(c, i)
+      } catch {}
     })
     onComplete()
   }
@@ -139,12 +127,17 @@ export function StackPhase({ cards, collection, onSave, onComplete }: StackPhase
     </RarityFrame>
   )
 
-  const stackSize: React.CSSProperties = { height: CARD_HEIGHT, width: 'auto', aspectRatio: '2/3' }
-
-  const savedCards = ordered.map((c, i) => (i < stackIndex ? c : null))
+  const stackSize: React.CSSProperties = {
+    width: '100%',
+    maxWidth: 340,
+    aspectRatio: '2/3',
+    maxHeight: CARD_HEIGHT,
+    perspective: 1000,
+    transformStyle: 'preserve-3d',
+  }
 
   return (
-    <section className="fixed inset-0 z-[9999] flex flex-col lg:flex-row" style={{ background: theme.palette.bg }}>
+    <section className="fixed inset-0 z-[9999] flex items-center justify-center" style={{ background: theme.palette.bg }}>
       {isMythic && flipped && (
         <div
           className="fixed inset-0 z-[10000] pointer-events-none"
@@ -155,35 +148,20 @@ export function StackPhase({ cards, collection, onSave, onComplete }: StackPhase
         />
       )}
       <div className="absolute inset-0" style={{ background: isMythic && flipped ? 'rgba(0,0,0,0.45)' : 'transparent' }} />
-      <PackSlotsPanel
-        cards={savedCards}
-        collection={collection}
-        slotRefs={slotRefs.current}
-        className="w-full shrink-0 lg:w-[280px] lg:max-w-[280px] p-6 gap-4 lg:justify-between"
-      />
-      <div className="flex-1 flex flex-col items-center justify-center gap-4 min-w-0 relative">
-        <button
-          type="button"
-          onClick={() => setShowSkip(true)}
-          className="absolute top-4 right-4 px-3 py-1.5 text-xs font-semibold border border-gray-600 rounded hover:bg-gray-800 transition"
-        >
-          Pular
-        </button>
-        {showSkip && (
-          <div className="fixed inset-0 z-[50000] flex items-center justify-center bg-black/80" onClick={(e) => e.stopPropagation()}>
-            <div className="bg-[#0b0b14] border border-gray-700 p-6 rounded-2xl text-center max-w-sm mx-4">
-              <p className="text-white mb-4">Tem certeza? Isso revela todas as cartas e vai ao resumo.</p>
-              <div className="flex gap-3 justify-center">
-                <button onClick={() => setShowSkip(false)} className="px-4 py-1.5 text-gray-300 hover:text-white">Cancelar</button>
-                <button onClick={doSkip} className="px-4 py-1.5 text-white bg-[var(--accent)] rounded hover:opacity-90">Confirmar</button>
-              </div>
-            </div>
-          </div>
-        )}
-        <p className="text-center text-gray-300 text-sm">
-          {isLast ? 'A última carta...' : 'Toque na carta para virar (Espaço)'}
-          {flipped && !isLast ? ' - Toque para guardar (Espaço)' : ''}
-        </p>
+      <div className="flex flex-col items-center gap-4 w-full max-w-[460px] mx-auto px-4 z-[20]">
+        <div className="w-full flex items-center justify-between gap-2 z-[30]">
+          <p className="text-gray-300 text-sm">
+            {isLast ? 'A última carta...' : 'Toque na carta para virar (Espaço)'}
+            {flipped && !isLast ? ' - Toque para guardar (Espaço)' : ''}
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowSkip(true)}
+            className="px-3 py-1.5 text-xs font-semibold border border-gray-600 rounded hover:bg-gray-800 transition"
+          >
+            Pular
+          </button>
+        </div>
         <div className="relative w-full max-w-[340px] flex items-center justify-center">
           {ordered
             .map((_, i) => i)
@@ -301,6 +279,17 @@ export function StackPhase({ cards, collection, onSave, onComplete }: StackPhase
           )}
         </div>
       </div>
+      {showSkip && (
+        <div className="fixed inset-0 z-[50000] flex items-center justify-center bg-black/80" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[#0b0b14] border border-gray-700 p-6 rounded-2xl text-center max-w-sm mx-4">
+            <p className="text-white mb-4">Tem certeza? Isso revela todas as cartas e vai ao resumo.</p>
+            <div className="flex gap-3 justify-center">
+              <button onClick={() => setShowSkip(false)} className="px-4 py-1.5 text-gray-300 hover:text-white">Cancelar</button>
+              <button onClick={doSkip} className="px-4 py-1.5 text-white bg-[var(--accent)] rounded hover:opacity-90">Confirmar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

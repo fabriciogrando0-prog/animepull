@@ -1,6 +1,7 @@
 import type { Character } from './RarityBadge'
 import { RARITY_COLORS } from './RarityBadge'
 import { CardBack } from './CardFront'
+import { motion } from 'framer-motion'
 import { useTheme } from '../themes/ThemeContext'
 
 interface PackSlotsPanelProps {
@@ -8,9 +9,10 @@ interface PackSlotsPanelProps {
   collection: Character[]
   className?: string
   slotRefs?: (HTMLDivElement | null)[]
+  animate?: boolean
 }
 
-export function PackSlotsPanel({ cards, collection, className, slotRefs }: PackSlotsPanelProps) {
+export function PackSlotsPanel({ cards, collection, className, slotRefs, animate = true }: PackSlotsPanelProps) {
   const { theme } = useTheme()
   const surface = theme.palette.surface
   const accent = theme.palette.accent
@@ -44,24 +46,50 @@ export function PackSlotsPanel({ cards, collection, className, slotRefs }: PackS
               }}
             >
               {filled ? (
-                <div className="flex flex-col h-full">
-                  <img
-                    src={card.image.large}
-                    alt={card.name.full}
-                    className="w-full h-[5/6] object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 p-1.5 bg-black/40">
-                    <div className="text-[10px] font-semibold line-clamp-1 text-white">
-                      {card.name.full}
-                    </div>
-                    {animeTitle && (
-                      <div className="text-[9px] text-gray-300/90 line-clamp-1">
-                        {animeTitle}
+                animate ? (
+                  <motion.div
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.25 }}
+                    className="flex flex-col h-full"
+                  >
+                    <img
+                      src={card.image.large}
+                      alt={card.name.full}
+                      className="w-full h-[5/6] object-cover"
+                      loading="lazy"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 p-1.5 bg-black/40">
+                      <div className="text-[10px] font-semibold line-clamp-1 text-white">
+                        {card.name.full}
                       </div>
-                    )}
+                      {animeTitle && (
+                        <div className="text-[9px] text-gray-300/90 line-clamp-1">
+                          {animeTitle}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ) : (
+                  <div className="flex flex-col h-full">
+                    <img
+                      src={card.image.large}
+                      alt={card.name.full}
+                      className="w-full h-[5/6] object-cover"
+                      loading="lazy"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 p-1.5 bg-black/40">
+                      <div className="text-[10px] font-semibold line-clamp-1 text-white">
+                        {card.name.full}
+                      </div>
+                      {animeTitle && (
+                        <div className="text-[9px] text-gray-300/90 line-clamp-1">
+                          {animeTitle}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )
               ) : (
                 <CardBack />
               )}

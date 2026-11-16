@@ -38,6 +38,7 @@ export function PackOpeningScreen({
   const [phase, setPhase] = useState<Phase>('pack')
   const [tearing, setTearing] = useState(false)
   const [hidden, setHidden] = useState(false)
+  const [revealedSlots, setRevealedSlots] = useState<(Character | null)[]>(Array(5).fill(null))
 
   const highestRarity = getHighestRarity(cards)
   const shakeCfg = effectsEnabled && tearing && (highestRarity === 'Lendário' || highestRarity === 'Mítico')
@@ -63,6 +64,14 @@ export function PackOpeningScreen({
       })
     } catch {}
   }, [setCollection])
+
+  const handleReveal = useCallback((card: Character, index: number) => {
+    setRevealedSlots((prev) => {
+      const next = [...prev]
+      next[index] = card
+      return next
+    })
+  }, [])
 
   useEffect(() => {
     if (phase !== 'summary') return
@@ -119,11 +128,14 @@ export function PackOpeningScreen({
           } as React.CSSProperties}>
         </div>
       )}
-      <PackSlotsPanel
-        cards={cards}
-        collection={collection}
-        className="w-full shrink-0 lg:w-[280px] lg:max-w-[280px] p-6 gap-4 lg:justify-between"
-      />
+      {phase !== 'pack' && (
+        <PackSlotsPanel
+          cards={revealedSlots}
+          collection={collection}
+          className="w-full shrink-0 lg:w-[280px] lg:max-w-[280px] p-6 gap-4 lg:justify-between"
+          animate={phase === 'stack'}
+        />
+      )}
       <div className="flex-1 flex flex-col items-center justify-center gap-4 min-w-0">
         {phase === 'pack' && (
           <>
@@ -143,8 +155,8 @@ export function PackOpeningScreen({
         {phase === 'stack' && (
           <StackPhase
             cards={cards}
-            collection={collection}
             onSave={handleCardSave}
+            onReveal={handleReveal}
             onComplete={() => setPhase('summary')}
           />
         )}

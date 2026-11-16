@@ -1,3 +1,4 @@
+import type { Character } from './RarityBadge'
 import { useEffects } from './EffectsContext'
 
 export type Tab = 'Packs' | 'Coleção' | 'Ranking'
@@ -6,12 +7,14 @@ interface AppShellProps {
   activeTab: Tab
   onTabChange: (tab: Tab) => void
   children: React.ReactNode
+  collection: Character[]
 }
 
 const TABS: Tab[] = ['Packs', 'Coleção', 'Ranking']
 
-export function AppShell({ activeTab, onTabChange, children }: AppShellProps) {
+export function AppShell({ activeTab, onTabChange, children, collection }: AppShellProps) {
   const { enabled, toggleEffects } = useEffects()
+  const distinct = new Set(collection.map(c => c.id)).size
   return (
     <div className="flex flex-col h-full bg-[#0b0b14] text-[#e5e7eb]">
         <header className="border-b border-gray-800 bg-[#0b0b14]/90 backdrop-blur sticky top-0 z-20">
@@ -22,6 +25,7 @@ export function AppShell({ activeTab, onTabChange, children }: AppShellProps) {
           <div className="flex gap-6 text-sm text-gray-400">
             <span>Packs: 5</span>
             <span>Moedas: 0</span>
+            <span>Coleção: {distinct.toLocaleString('pt-BR')}</span>
             <button
               onClick={toggleEffects}
               className={`ml-2 px-2 py-1 rounded border text-sm ${enabled

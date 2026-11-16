@@ -338,7 +338,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <>
-        <AppShell activeTab={activeTab} onTabChange={setActiveTab}>
+        <AppShell activeTab={activeTab} onTabChange={setActiveTab} collection={collection}>
         {activeTab === 'Packs' && !showPack && <PacksTab onOpenPack={handleOpenPack} />}
         {activeTab === 'Coleção' && <ColecaoTab />}
         {activeTab === 'Ranking' && (
