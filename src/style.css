@@ -61,3 +61,75 @@
 .flip-card-back {
   transform: rotateY(180deg);
 }
+
+@keyframes fx-leaves {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10%, 90% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(10deg); opacity: 0; }
+}
+
+@keyframes fx-sparkles {
+  0%, 100% { transform: translate(0, 0) scale(0.35) rotate(0deg); opacity: 0; }
+  50% { transform: translate(0, 0) scale(1) rotate(360deg); opacity: 1; }
+}
+
+@keyframes fx-orbs {
+  0% { transform: translate(0, 0); opacity: 0; }
+  10% { opacity: 1; }
+  33% { transform: translate(var(--dx), calc(var(--dy) * 0.35)); }
+  66% { transform: translate(calc(var(--dx) * -0.6), calc(var(--dy) * 0.8)); opacity: 1; }
+  100% { transform: translate(0, var(--dy)); opacity: 0; }
+}
+
+@keyframes fx-sparks {
+  0% { transform: translate(0, 0) rotate(45deg); opacity: 0; }
+  10%, 90% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(45deg); opacity: 0; }
+}
+
+@keyframes fx-embers {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10%, 90% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(720deg); opacity: 0; }
+}
+
+@keyframes frame-pulse {
+  0%, 100% { filter: drop-shadow(0 0 var(--gmin)px var(--gcolor)); }
+  50% { filter: drop-shadow(0 0 var(--gmax)px var(--gcolor)); }
+}
+
+@keyframes frame-opacity {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+@keyframes frame-pulse-hue {
+  0%   { filter: drop-shadow(0 0 var(--gmin)px var(--gcolor)) hue-rotate(-12deg); }
+  12.5% { filter: drop-shadow(0 0 var(--gmax)px var(--gcolor)) hue-rotate(-12deg); }
+  25%  { filter: drop-shadow(0 0 var(--gmin)px var(--gcolor)) hue-rotate(0deg); }
+  37.5% { filter: drop-shadow(0 0 var(--gmax)px var(--gcolor)) hue-rotate(0deg); }
+  50%  { filter: drop-shadow(0 0 var(--gmin)px var(--gcolor)) hue-rotate(12deg); }
+  62.5% { filter: drop-shadow(0 0 var(--gmax)px var(--gcolor)) hue-rotate(12deg); }
+  75%  { filter: drop-shadow(0 0 var(--gmin)px var(--gcolor)) hue-rotate(0deg); }
+  87.5% { filter: drop-shadow(0 0 var(--gmax)px var(--gcolor)) hue-rotate(0deg); }
+  100% { filter: drop-shadow(0 0 var(--gmin)px var(--gcolor)) hue-rotate(-12deg); }
+}
+
+.frame-fx .fx-p {
+  position: absolute;
+  pointer-events: none;
+}
+
+.frame-fx .fx-leaves {
+  border-radius: 50%;
+  height: calc(var(--size) * 0.55);
+}
+
+.frame-fx .fx-sparkles {
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.frame-fx .fx-orbs {
+  border-radius: 50%;
+}
+

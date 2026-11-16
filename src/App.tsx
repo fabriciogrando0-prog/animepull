@@ -177,7 +177,7 @@ function setCacheData(characters: Character[]): void {
 
 const COLLECTION_KEY = 'animepull_collection'
 
-function getCollection(): Character[] {
+export function getCollection(): Character[] {
   try {
     const stored = localStorage.getItem(COLLECTION_KEY)
     if (stored) {
@@ -348,6 +348,7 @@ export default function App() {
       {showPack && packCards.length > 0 && (
         <PackOpeningScreen
           cards={packCards}
+          collection={getCollection()}
           onComplete={handlePackComplete}
           onCancel={handlePackCancel}
         />

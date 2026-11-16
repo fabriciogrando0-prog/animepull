@@ -84,7 +84,7 @@ export function SummaryScreen({ cards, onOpenAnother, onClose }: SummaryScreenPr
                   transition={{ delay: 0.4 + index * 0.1, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
                   className="min-w-0 w-full md:flex-none md:w-[16%] max-w-xs"
                 >
-                  <RarityFrame rarity={rarity}>
+                  <RarityFrame rarity={rarity} intensity={0.35}>
                     <div className="flex flex-col h-full">
                       {isHighRarity && (
                         <div className="absolute inset-0 overflow-hidden rounded-t-2xl pointer-events-none" style={{

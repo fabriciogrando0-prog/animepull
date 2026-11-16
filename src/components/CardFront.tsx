@@ -17,6 +17,7 @@ export function CardFront({ character, isHighRarity = false }: CardFrontProps) {
   return (
     <RarityFrame
       rarity={rarity}
+      intensity={1}
       style={{
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden',

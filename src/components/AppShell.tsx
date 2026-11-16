@@ -1,3 +1,5 @@
+import { useEffects } from './EffectsContext'
+
 export type Tab = 'Packs' | 'Coleção' | 'Ranking'
 
 interface AppShellProps {
@@ -9,6 +11,7 @@ interface AppShellProps {
 const TABS: Tab[] = ['Packs', 'Coleção', 'Ranking']
 
 export function AppShell({ activeTab, onTabChange, children }: AppShellProps) {
+  const { enabled, toggleEffects } = useEffects()
   return (
     <div className="flex flex-col h-full bg-[#0b0b14] text-[#e5e7eb]">
         <header className="border-b border-gray-800 bg-[#0b0b14]/90 backdrop-blur sticky top-0 z-20">
@@ -19,6 +22,15 @@ export function AppShell({ activeTab, onTabChange, children }: AppShellProps) {
           <div className="flex gap-6 text-sm text-gray-400">
             <span>Packs: 5</span>
             <span>Moedas: 0</span>
+            <button
+              onClick={toggleEffects}
+              className={`ml-2 px-2 py-1 rounded border text-sm ${enabled
+                ? 'border-[#e5e7eb] text-[#e5e7eb]'
+                : 'border-gray-600 text-gray-400'}`}
+              title="Ligar/desligar efeitos visuais"
+            >
+              Efeitos: {enabled ? 'ligado' : 'desligado'}
+            </button>
           </div>
         </div>
         <nav className="border-b border-gray-800">
