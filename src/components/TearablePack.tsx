@@ -1,0 +1,244 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Particle } from './Particle'
+import type { Rarity } from './RarityBadge'
+
+const PACK_HEIGHT = 'min(55vh, 520px)'
+const TEAR_Y = 0.065
+const TEETH_COUNT = 24
+const TOOTH_HEIGHT = 0.012
+
+const RARITY_COLOR: Record<Rarity, string> = {
+  Comum: '#ffffff',
+  Incomum: '#22c55e',
+  Raro: '#3b82f6',
+  Épico: '#a855f7',
+  Lendário: '#fbbf24',
+  Mítico: '#f43f5e',
+}
+
+const PARTICLE_COUNT: Record<Rarity, number> = {
+  Comum: 30,
+  Incomum: 30,
+  Raro: 30,
+  Épico: 30,
+  Lendário: 30,
+  Mítico: 50,
+}
+
+interface TearablePackProps {
+  src: string
+  rarity: Rarity
+  onTearComplete: () => void
+  paused?: boolean
+  effectsEnabled?: boolean
+}
+
+function toPct(v: number): string {
+  return `${(v * 100).toFixed(4)}%`
+}
+
+function tearLine(y: number): [number, number][] {
+  const pts: [number, number][] = [[0, y]]
+  const steps = TEETH_COUNT * 2
+  for (let i = 1; i <= steps; i++) {
+    const x = i / steps
+    const off = i % 2 === 1 ? -TOOTH_HEIGHT : TOOTH_HEIGHT
+    pts.push([x, y + off])
+  }
+  pts.push([1, y])
+  return pts
+}
+
+function fmt(pts: [number, number][]): string {
+  return pts.map(([x, y]) => `${toPct(x)} ${toPct(y)}`).join(', ')
+}
+
+const topTeeth = tearLine(TEAR_Y).slice(1).reverse()
+const CLIP_TOP = `polygon(${toPct(0)} ${toPct(0)}, ${toPct(1)} ${toPct(0)}, ${toPct(1)} ${toPct(TEAR_Y)}, ${fmt(topTeeth)}, ${toPct(0)} ${toPct(0)})`
+const CLIP_BOTTOM = `polygon(${fmt(tearLine(TEAR_Y))}, ${toPct(1)} ${toPct(1)}, ${toPct(0)} ${toPct(1)})`
+
+const BASE_IMG: React.CSSProperties = {
+  position: 'absolute',
+  inset: 0,
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  display: 'block',
+  userSelect: 'none',
+}
+
+export function TearablePack({
+  src,
+  rarity,
+  onTearComplete,
+  paused: pausedProp = false,
+  effectsEnabled = true,
+}: TearablePackProps) {
+  const color = RARITY_COLOR[rarity]
+  const count = PARTICLE_COUNT[rarity]
+  const [started, setStarted] = useState(false)
+  const [exploding, setExploding] = useState(false)
+  const hiddenRef = useRef(pausedProp)
+
+  useEffect(() => {
+    const onVis = () => {
+      hiddenRef.current = document.visibilityState === 'hidden'
+    }
+    onVis()
+    window.addEventListener('visibilitychange', onVis)
+    return () => window.removeEventListener('visibilitychange', onVis)
+  }, [])
+
+  const isPaused = pausedProp || hiddenRef.current
+  const playState = isPaused ? 'paused' : 'running'
+
+  const start = useCallback(() => {
+    if (!started) setStarted(true)
+  }, [started])
+
+  useEffect(() => {
+    if (!started) return
+    const particlesT = setTimeout(() => setExploding(true), 560)
+    const endT = setTimeout(() => {
+      onTearComplete()
+    }, 1150)
+    return () => {
+      clearTimeout(particlesT)
+      clearTimeout(endT)
+    }
+  }, [started, onTearComplete])
+
+  const packStyle: React.CSSProperties = {
+    height: PACK_HEIGHT,
+    display: 'inline-block',
+    position: 'relative',
+    userSelect: 'none',
+    cursor: 'pointer',
+    animation: started ? 'none' : 'float-pack 3s ease-in-out infinite',
+    animationPlayState: playState,
+  }
+
+  const squeezeStyle: React.CSSProperties = {
+    position: 'absolute',
+    inset: 0,
+    width: '100%',
+    height: '100%',
+    animation: 'pack-squeeze 0.15s ease-out forwards',
+    animationPlayState: playState,
+  }
+
+  const lineStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: '50%',
+    top: toPct(TEAR_Y),
+    width: '100%',
+    height: '4px',
+    transform: 'translateX(-50%) scaleX(0)',
+    transformOrigin: '50% 50%',
+    background: color,
+    boxShadow: `0 0 10px ${color}, 0 0 24px ${color}80`,
+    pointerEvents: 'none',
+    animation: started ? 'light-line 0.35s ease-out 0.15s forwards' : 'none',
+    animationPlayState: playState,
+  }
+
+  const innerLightStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: 0,
+    top: toPct(TEAR_Y),
+    width: '100%',
+    height: '14%',
+    background: `radial-gradient(circle at 50% 0%, ${color}, transparent 70%)`,
+    pointerEvents: 'none',
+    animation: started ? 'inner-light 0.35s ease-out 0.15s forwards' : 'none',
+    animationPlayState: playState,
+  }
+
+  const beamsStyle: React.CSSProperties = {
+    position: 'absolute',
+    inset: 0,
+    background: `repeating-conic-gradient(from 0deg at 50% ${toPct(TEAR_Y)}, ${color}0a 0deg 3deg, transparent 3deg 10deg)`,
+    opacity: started ? 0.16 : 0,
+    pointerEvents: 'none',
+    animation: started ? 'beams-fade 0.4s ease-out 0.5s forwards' : 'none',
+    animationPlayState: playState,
+  }
+
+  const topStyle: React.CSSProperties = {
+    ...BASE_IMG,
+    clipPath: CLIP_TOP,
+    zIndex: 2,
+    animation: started ? 'pack-top-fly 0.4s ease-in 0.5s forwards' : 'none',
+    animationPlayState: playState,
+  }
+
+  const bottomStyle: React.CSSProperties = {
+    ...BASE_IMG,
+    clipPath: CLIP_BOTTOM,
+    zIndex: 1,
+    animation: started ? 'pack-body-drop 0.6s ease-out 0.5s forwards' : 'none',
+    animationPlayState: playState,
+  }
+
+  return (
+    <div
+      className="tearable-pack"
+      style={packStyle}
+      onClick={start}
+      role="button"
+      tabIndex={0}
+    >
+      <img src={src} alt="" style={{ visibility: 'hidden', height: '100%', width: 'auto', display: 'block' }} aria-hidden="true" />
+      <div style={squeezeStyle}>
+        <div
+          className="tear-piece"
+          style={{
+            ...bottomStyle,
+            backgroundImage: `url(${src})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          {started && (
+            <div style={innerLightStyle} />
+          )}
+        </div>
+        <div
+          className="tear-piece"
+          style={{
+            ...topStyle,
+            backgroundImage: `url(${src})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div style={lineStyle} />
+        <div style={beamsStyle} />
+        {exploding && effectsEnabled && !isPaused && (
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: toPct(TEAR_Y),
+              transform: 'translate(-50%, -50%)',
+              width: 0,
+              height: 0,
+              pointerEvents: 'none',
+            }}
+          >
+            {Array.from({ length: count }).map((_, i) => (
+              <Particle
+                key={i}
+                x={0}
+                y={0}
+                color={color}
+                size={4 + (rarity === 'Mítico' ? 2 : 0)}
+                delay={i * 0.018}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

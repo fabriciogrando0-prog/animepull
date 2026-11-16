@@ -133,3 +133,61 @@
   border-radius: 50%;
 }
 
+@keyframes float-pack {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pack-squeeze {
+  to { transform: scale(0.98); }
+}
+
+@keyframes light-line {
+  from { transform: translateX(-50%) scaleX(0); opacity: 0; }
+  to { transform: translateX(-50%) scaleX(1); opacity: 1; }
+}
+
+@keyframes inner-light {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 0.85; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.2); }
+}
+
+@keyframes pack-top-fly {
+  to { transform: translate(-16%, -170%) rotate(-18deg); opacity: 0; }
+}
+
+@keyframes pack-body-drop {
+  to { transform: translateY(8%) scale(1.03); opacity: 0; }
+}
+
+@keyframes beams-fade {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 0.16; transform: scale(1); }
+}
+
+@keyframes screen-shake-4 {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(4px, 4px); }
+  50% { transform: translate(-4px, -4px); }
+  75% { transform: translate(4px, -4px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes screen-shake-8 {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(8px, 8px); }
+  50% { transform: translate(-8px, -8px); }
+  75% { transform: translate(8px, -8px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.4; }
+}
+
+.tearable-pack:hover .tear-piece {
+  filter: brightness(1.12);
+}
+
