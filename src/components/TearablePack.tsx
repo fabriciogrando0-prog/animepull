@@ -31,6 +31,7 @@ interface TearablePackProps {
   onTearComplete: () => void
   paused?: boolean
   effectsEnabled?: boolean
+  startSignal?: boolean
 }
 
 function toPct(v: number): string {
@@ -73,6 +74,7 @@ export function TearablePack({
   onTearComplete,
   paused: pausedProp = false,
   effectsEnabled = true,
+  startSignal,
 }: TearablePackProps) {
   const color = RARITY_COLOR[rarity]
   const count = PARTICLE_COUNT[rarity]
@@ -95,6 +97,10 @@ export function TearablePack({
   const start = useCallback(() => {
     if (!started) setStarted(true)
   }, [started])
+
+  useEffect(() => {
+    if (startSignal) start()
+  }, [startSignal, start])
 
   const packRef = useRef<HTMLDivElement>(null)
   const packWidthRef = useRef(0)

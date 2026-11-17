@@ -38,6 +38,7 @@ export function PackOpeningScreen({
   const { enabled: effectsEnabled } = useEffects()
   const [phase, setPhase] = useState<Phase>('pack')
   const [tearing, setTearing] = useState(false)
+  const [spaceTear, setSpaceTear] = useState(false)
   const [hidden, setHidden] = useState(false)
   const [revealedSlots, setRevealedSlots] = useState<(Character | null)[]>(Array(5).fill(null))
 
@@ -53,7 +54,7 @@ export function PackOpeningScreen({
 
   useEffect(() => {
     if (!tearing) return
-    const t = setTimeout(() => setPhase('stack'), 1300)
+    const t = setTimeout(() => setPhase('stack'), 150)
     return () => clearTimeout(t)
   }, [tearing])
 
@@ -84,12 +85,12 @@ export function PackOpeningScreen({
       if (e.code !== 'Space') return
       e.preventDefault()
       if (phase === 'pack') {
-        tearPack()
+        setSpaceTear(true)
       }
     }
     window.addEventListener('keydown', onKeydown)
     return () => window.removeEventListener('keydown', onKeydown)
-  }, [phase, tearPack])
+  }, [phase])
 
   useEffect(() => {
     const onVis = () => setHidden(document.visibilityState === 'hidden')
@@ -145,7 +146,7 @@ export function PackOpeningScreen({
               className="flex flex-col items-center gap-4"
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.04 }}
+              exit={{ opacity: 0, transition: { duration: 0.1 } }}
               transition={{ duration: 0.25, ease: 'easeOut' }}>
               <TearablePack
                 src={`${import.meta.env.BASE_URL}packs/${theme.arquivo}`}
@@ -153,6 +154,7 @@ export function PackOpeningScreen({
                 paused={hidden}
                 effectsEnabled={effectsEnabled}
                 onTearComplete={tearPack}
+                startSignal={spaceTear}
               />
               <p className="text-center text-gray-300 text-sm">
                 Toque no pack para rasgar, ou (
