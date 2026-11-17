@@ -292,8 +292,7 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
           </button>
         </div>
         <p className="text-gray-300 text-sm text-center">
-          {isLast ? 'A última carta...' : 'Toque na carta para virar (Espaço)'}
-          {flipped && !isLast ? ' - Toque para guardar (Espaço)' : ''}
+          {isLast ? 'A última carta...' : flipped ? 'Toque para guardar (Espaço)' : 'Toque na carta para virar (Espaço)'}
         </p>
       </div>
       {showSkip && (
