@@ -176,7 +176,7 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
             initial={{ y: 120, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: stackIndex * 0.06, ease: 'easeOut' }}
-            className="relative overflow-hidden z-10 cursor-pointer select-none"
+            className="relative z-10 cursor-pointer select-none"
             role="button"
             tabIndex={0}
             onClick={() => (flipped ? handleGuard() : handleFlip())}
@@ -216,7 +216,6 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
                   transform: 'rotateY(180deg)',
                   transformStyle: 'preserve-3d',
                   height: '100%',
-                  overflow: 'hidden',
                 }}
               >
                 {front}
