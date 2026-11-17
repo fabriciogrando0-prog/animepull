@@ -286,7 +286,7 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
           <button
             type="button"
             onClick={() => setShowSkip(true)}
-            className="px-3 py-1.5 text-xs font-semibold border border-gray-600 rounded hover:bg-gray-800 transition"
+            className="z-50 px-3 py-1.5 text-xs font-semibold border border-gray-600 rounded hover:bg-gray-800 transition"
           >
             Pular
           </button>
