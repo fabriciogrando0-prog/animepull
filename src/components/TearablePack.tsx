@@ -318,8 +318,10 @@ export function TearablePack({
             backgroundPosition: 'center',
           }}
         />
-        <div style={lineStyle} />
-        <div style={beamsStyle} />
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: exploding ? 0 : 1, transition: 'opacity 0.25s ease-out' }}>
+          <div style={lineStyle} />
+          <div style={beamsStyle} />
+        </div>
         {dragging && <div style={dragLineStyle} />}
         {exploding && effectsEnabled && !isPaused && (
           <div
