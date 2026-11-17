@@ -13,6 +13,7 @@ export interface Theme {
   id: string
   name: string
   arquivo: string
+  verso: string
   palette: Palette
   CardBack?: ComponentType<any> | ReactNode
   PackArt?: ComponentType<any> | ReactNode

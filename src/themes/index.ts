@@ -7,6 +7,7 @@ export const themes: Theme[] = [
     id: 'manga-pop',
     name: 'Manga Pop',
     arquivo: 'pack-manga-pop.webp',
+    verso: 'verso-manga-pop.png',
     palette: {
       bg: '#1a0828',
       surface: '#2a0f3a',
@@ -22,6 +23,7 @@ export const themes: Theme[] = [
     id: 'shounen',
     name: 'Shounen',
     arquivo: 'pack-shounen.webp',
+    verso: 'verso-shounen.png',
     palette: {
       bg: '#181203',
       surface: '#231a05',
@@ -37,6 +39,7 @@ export const themes: Theme[] = [
     id: 'shoujo',
     name: 'Shoujo',
     arquivo: 'pack-shoujo.webp',
+    verso: 'verso-shoujo.png',
     palette: {
       bg: '#2a0e23',
       surface: '#3a1530',
@@ -52,6 +55,7 @@ export const themes: Theme[] = [
     id: 'seinen',
     name: 'Seinen',
     arquivo: 'pack-seinen.webp',
+    verso: 'verso-seinen.png',
     palette: {
       bg: '#0b0607',
       surface: '#14090b',
@@ -67,6 +71,7 @@ export const themes: Theme[] = [
     id: 'josei',
     name: 'Josei',
     arquivo: 'pack-josei.webp',
+    verso: 'verso-josei.png',
     palette: {
       bg: '#110928',
       surface: '#1b1040',
@@ -82,6 +87,7 @@ export const themes: Theme[] = [
     id: 'isekai',
     name: 'Isekai',
     arquivo: 'pack-isekai.webp',
+    verso: 'verso-isekai.png',
     palette: {
       bg: '#051c15',
       surface: '#06261f',
@@ -97,6 +103,7 @@ export const themes: Theme[] = [
     id: 'mecha',
     name: 'Mecha',
     arquivo: 'pack-mecha.webp',
+    verso: 'verso-mecha.png',
     palette: {
       bg: '#091626',
       surface: '#0d2238',
@@ -112,6 +119,7 @@ export const themes: Theme[] = [
     id: 'esportes',
     name: 'Esportes',
     arquivo: 'pack-esportes.webp',
+    verso: 'verso-esportes.png',
     palette: {
       bg: '#091d0c',
       surface: '#0d2a14',
@@ -127,6 +135,7 @@ export const themes: Theme[] = [
     id: 'sobrenatural',
     name: 'Sobrenatural',
     arquivo: 'pack-sobrenatural.webp',
+    verso: 'verso-sobrenatural.png',
     palette: {
       bg: '#111630',
       surface: '#1a1f4a',
@@ -142,6 +151,7 @@ export const themes: Theme[] = [
     id: 'slice',
     name: 'Slice of Life',
     arquivo: 'pack-slice.webp',
+    verso: 'verso-slice.png',
     palette: {
       bg: '#0c2636',
       surface: '#123a52',

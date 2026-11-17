@@ -147,19 +147,6 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
       )}
       <div className="absolute inset-0" style={{ background: isMythic && flipped ? 'rgba(0,0,0,0.45)' : 'transparent' }} />
       <div className="flex flex-col items-center gap-4 w-full max-w-[460px] mx-auto px-4 z-[20]">
-        <div className="w-full flex items-center justify-between gap-2 z-[30]">
-          <p className="text-gray-300 text-sm">
-            {isLast ? 'A última carta...' : 'Toque na carta para virar (Espaço)'}
-            {flipped && !isLast ? ' - Toque para guardar (Espaço)' : ''}
-          </p>
-          <button
-            type="button"
-            onClick={() => setShowSkip(true)}
-            className="px-3 py-1.5 text-xs font-semibold border border-gray-600 rounded hover:bg-gray-800 transition"
-          >
-            Pular
-          </button>
-        </div>
         <div className="relative w-full max-w-[340px] flex items-center justify-center">
           {ordered
             .map((_, i) => i)
@@ -276,6 +263,19 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
             </div>
           )}
         </div>
+        <div className="w-full flex justify-center z-[30]">
+          <button
+            type="button"
+            onClick={() => setShowSkip(true)}
+            className="px-3 py-1.5 text-xs font-semibold border border-gray-600 rounded hover:bg-gray-800 transition"
+          >
+            Pular
+          </button>
+        </div>
+        <p className="text-gray-300 text-sm text-center">
+          {isLast ? 'A última carta...' : 'Toque na carta para virar (Espaço)'}
+          {flipped && !isLast ? ' - Toque para guardar (Espaço)' : ''}
+        </p>
       </div>
       {showSkip && (
         <div className="fixed inset-0 z-[50000] flex items-center justify-center bg-black/80" onClick={(e) => e.stopPropagation()}>
