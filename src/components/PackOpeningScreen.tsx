@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import type { Character, Rarity } from './RarityBadge'
 import { getHighestRarity } from './RarityBadge'
 import { PackSlotsPanel } from './PackSlotsPanel'
@@ -137,29 +138,45 @@ export function PackOpeningScreen({
         />
       )}
       <div className="flex-1 flex flex-col items-center justify-center gap-4 min-w-0">
-        {phase === 'pack' && (
-          <>
-            <TearablePack
-              src={`${import.meta.env.BASE_URL}packs/${theme.arquivo}`}
-              rarity={highestRarity}
-              paused={hidden}
-              effectsEnabled={effectsEnabled}
-              onTearComplete={tearPack}
-            />
-            <p className="text-center text-gray-300 text-sm">
-              Toque no pack para rasgar, ou (
-              <kbd style={kbd}>Espaço</kbd>)
-            </p>
-          </>
-        )}
-        {phase === 'stack' && (
-          <StackPhase
-            cards={cards}
-            onSave={handleCardSave}
-            onReveal={handleReveal}
-            onComplete={() => setPhase('summary')}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          {phase === 'pack' && (
+            <motion.div
+              key="pack"
+              className="flex flex-col items-center gap-4"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.04 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}>
+              <TearablePack
+                src={`${import.meta.env.BASE_URL}packs/${theme.arquivo}`}
+                rarity={highestRarity}
+                paused={hidden}
+                effectsEnabled={effectsEnabled}
+                onTearComplete={tearPack}
+              />
+              <p className="text-center text-gray-300 text-sm">
+                Toque no pack para rasgar, ou (
+                <kbd style={kbd}>Espaço</kbd>)
+              </p>
+            </motion.div>
+          )}
+          {phase === 'stack' && (
+            <motion.div
+              key="stack"
+              className="flex-1 w-full flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}>
+              <StackPhase
+                cards={cards}
+                onSave={handleCardSave}
+                onReveal={handleReveal}
+                onComplete={() => setPhase('summary')}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )
