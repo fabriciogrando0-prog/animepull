@@ -291,7 +291,7 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
             Pular
           </button>
         </div>
-        <p className="text-gray-300 text-sm text-center">
+        <p className="text-gray-300 text-sm text-center mt-6">
           {isLast ? 'A última carta...' : flipped ? 'Toque para guardar (Espaço)' : 'Toque na carta para virar (Espaço)'}
         </p>
       </div>
