@@ -237,7 +237,9 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
                   height: '100%',
                 }}
               >
-                {front}
+                <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+                  {front}
+                </div>
               </div>
             </motion.div>
           </motion.div>
