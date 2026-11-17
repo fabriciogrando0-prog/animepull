@@ -170,6 +170,24 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
                 <CardBack />
               </motion.div>
             ))}
+          {Array.from({ length: 5 }).map((_, i) => (
+            <motion.div
+              key={`bg-${i}`}
+              initial={{ y: 120, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: stackIndex * 0.06, ease: 'easeOut' }}
+              className="absolute"
+              style={{
+                ...stackSize,
+                zIndex: 5 + i,
+                transform: `rotate(${seedRot(stackIndex + i + 100)}deg) translate(${(i % 3 === 0 ? -10 : i % 3 === 1 ? 10 : 0)}px, ${i * 4}px)`,
+                opacity: 0.45,
+                pointerEvents: 'none',
+              } as React.CSSProperties}
+            >
+              <CardBack />
+            </motion.div>
+          ))}
           <motion.div
             ref={cardRef}
             key={`card-${stackIndex}`}
