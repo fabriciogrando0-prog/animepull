@@ -4,7 +4,6 @@ import type { Character, Rarity } from './RarityBadge'
 import { RARITY_COLORS } from './RarityBadge'
 import { RarityFrame } from './RarityFrame'
 import { CardBack } from './CardFront'
-import { useTheme } from '../themes/ThemeContext'
 
 const RARITY_ORDER: Rarity[] = ['Comum', 'Incomum', 'Raro', 'Épico', 'Lendário', 'Mítico']
 const CARD_HEIGHT = 'min(72vh, 640px)'
@@ -26,7 +25,6 @@ const RARITY_RGB: Record<Rarity, string> = {
 }
 
 export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhaseProps) {
-  const { theme } = useTheme()
   const ordered = [...cards].sort(
     (a, b) => RARITY_ORDER.indexOf(a.rarity || 'Comum') - RARITY_ORDER.indexOf(b.rarity || 'Comum')
   )
@@ -137,7 +135,7 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
   }
 
   return (
-    <section className="fixed inset-0 z-[9999] flex items-center justify-center" style={{ background: theme.palette.bg }}>
+    <section className="relative flex-1 w-full flex items-center justify-center">
       {isMythic && flipped && (
         <div
           className="fixed inset-0 z-[10000] pointer-events-none"
