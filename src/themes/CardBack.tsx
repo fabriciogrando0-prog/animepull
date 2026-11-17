@@ -19,7 +19,7 @@ export function CardBack({ theme }: { theme?: Theme } = {}) {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden relative"
+      className="rounded-2xl overflow-hidden relative flex items-center justify-center"
       style={{
         position: 'absolute',
         inset: '0',
@@ -34,8 +34,13 @@ export function CardBack({ theme }: { theme?: Theme } = {}) {
         src={src}
         alt={`Verso do pack ${t.name}`}
         draggable={false}
-        className="w-full h-full object-cover object-center"
-        style={{ userSelect: 'none', display: 'block' }}
+        className="select-none block object-cover"
+        style={{
+          width: '100%',
+          height: '133.33%',
+          userSelect: 'none',
+          display: 'block',
+        }}
       />
     </div>
   )

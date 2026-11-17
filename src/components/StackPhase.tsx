@@ -147,7 +147,7 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
       )}
       <div className="absolute inset-0" style={{ background: isMythic && flipped ? 'rgba(0,0,0,0.45)' : 'transparent' }} />
       <div className="flex flex-col items-center gap-4 w-full max-w-[460px] mx-auto px-4 z-[20]">
-        <div className="relative w-full max-w-[340px] flex items-center justify-center">
+          <div className="relative w-full max-w-[340px] flex flex-col items-center justify-center gap-3">
           {ordered
             .map((_, i) => i)
             .filter((i) => i < stackIndex)
@@ -262,8 +262,6 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
               )}
             </div>
           )}
-        </div>
-        <div className="w-full flex justify-center z-[30]">
           <button
             type="button"
             onClick={() => setShowSkip(true)}
