@@ -199,7 +199,7 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
                 scale: isMythic && flipped ? 1.08 : 1,
               }}
               transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-              style={{ transformStyle: 'preserve-3d', width: '100%', height: '100%', overflow: 'hidden' }}
+              style={{ transformStyle: 'preserve-3d', width: '100%', height: '100%' }}
               className="absolute inset-0"
             >
               <div
@@ -216,6 +216,7 @@ export function StackPhase({ cards, onSave, onReveal, onComplete }: StackPhasePr
                   transform: 'rotateY(180deg)',
                   transformStyle: 'preserve-3d',
                   height: '100%',
+                  overflow: 'hidden',
                 }}
               >
                 {front}
