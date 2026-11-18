@@ -42,6 +42,12 @@ export function PackOpeningScreen({
   const [hidden, setHidden] = useState(false)
   const [revealedSlots, setRevealedSlots] = useState<(Character | null)[]>(Array(5).fill(null))
 
+  useEffect(() => {
+    for (const card of cards) {
+      if (!card.temaOrigem) card.temaOrigem = theme.id
+    }
+  }, [cards, theme.id])
+
   const highestRarity = getHighestRarity(cards)
   const shakeCfg = effectsEnabled && tearing && (highestRarity === 'Lendário' || highestRarity === 'Mítico')
     ? { px: highestRarity === 'Mítico' ? 8 : 4, ms: highestRarity === 'Mítico' ? 600 : 400 }

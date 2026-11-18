@@ -30,6 +30,7 @@ export interface Character {
   media: CharacterMedia
   favourites: number
   rarity?: Rarity
+  temaOrigem?: string
 }
 
 export const RARITY_RANGES: Record<Rarity, { start: number; end: number }> = {
