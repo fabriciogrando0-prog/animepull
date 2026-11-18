@@ -9,7 +9,6 @@ import { RankingTab } from './components/RankingTab'
 import { PackOpeningScreen } from './components/PackOpeningScreen'
 import { SummaryScreen } from './components/SummaryScreen'
 import { ThemeProvider } from './themes/ThemeContext'
-import { useTheme } from './themes/ThemeContext'
 
 const CACHE_KEY = 'anilist_500_characters'
 const CACHE_DURATION = 24 * 60 * 60 * 1000
@@ -303,10 +302,7 @@ export default function App() {
     loadCharacters()
   }, [loadCharacters])
 
-  const { nextTheme } = useTheme()
-
   const handleOpenPack = () => {
-    nextTheme()
     const results = drawMultiple(charactersByRarity, 5)
     setPackCards(results)
     setShowPack(true)
