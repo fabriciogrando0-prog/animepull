@@ -27,16 +27,17 @@ export function CollectionGrid({ collection }: { collection: Character[] }) {
   const [selectedCard, setSelectedCard] = useState<Character | null>(null)
 
   const query = useDeferredValue(searchText)
-  const q = normalize(query)
+  const q = normalize(query).trim()
 
   const matchesQuery = (c: Character) => {
-    const haystack = [
-      c.name.full,
-      c.name.native ?? '',
-      ...c.media.nodes.map((n) => n.title.romaji),
-      ...c.media.nodes.map((n) => n.title.english ?? ''),
-    ].join(' ')
-    return normalize(haystack).includes(q)
+    const anime = c.media.nodes.find((n) => n.type === 'ANIME')
+    const fields = [
+      normalize(c.name.full),
+      normalize(c.name.native ?? ''),
+      normalize(anime?.title.romaji ?? ''),
+      normalize(anime?.title.english ?? ''),
+    ]
+    return fields.some((field) => field.includes(q))
   }
 
   const searchFiltered = useMemo(
