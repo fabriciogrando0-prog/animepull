@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { Character } from './RarityBadge'
 import { RARITY_COLORS } from './RarityBadge'
-import { RarityFrame } from './RarityFrame'
+import { ColecaoCardFront } from './ColecaoCardFront'
 import { CardBack as ThemeCardBack } from '../themes/CardBack'
 import { themes } from '../themes/index'
 import { useTheme } from '../themes/ThemeContext'
@@ -11,8 +11,6 @@ export function CardDetailModal({ card, onClose }: { card: Character; onClose: (
   const { theme: currentTheme } = useTheme()
   const backTheme = themes.find((t) => t.id === (card.temaOrigem ?? currentTheme.id)) ?? currentTheme
   const colors = RARITY_COLORS[card.rarity ?? 'Comum']
-  const animeNode = card.media.nodes.find((node) => node.type === 'ANIME')
-  const animeTitle = animeNode?.title.english || animeNode?.title.romaji || ''
   const [flipped, setFlipped] = useState(false)
 
   useEffect(() => {
@@ -62,22 +60,7 @@ export function CardDetailModal({ card, onClose }: { card: Character; onClose: (
                 WebkitBackfaceVisibility: 'hidden',
                 transformStyle: 'preserve-3d',
               }}>
-              <RarityFrame rarity={card.rarity ?? 'Comum'}>
-                <div className="flex flex-col h-full w-full overflow-hidden">
-                  <div className="relative w-full h-full overflow-hidden">
-                    <img src={card.image.large} alt={card.name.full} className="w-full h-full object-cover" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3 bg-black/60">
-                      <div className="text-white font-bold text-sm leading-tight">{card.name.full}</div>
-                      {animeTitle && <div className="text-gray-300 text-xs mt-0.5">{animeTitle}</div>}
-                    </div>
-                  </div>
-                </div>
-              </RarityFrame>
-              <span
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 px-2 py-1 rounded text-[10px] font-semibold uppercase tracking-wider"
-                style={{ backgroundColor: colors.primary, color: '#0b0b14' }}>
-                {card.rarity ?? 'Comum'}
-              </span>
+              <ColecaoCardFront character={card} />
             </div>
             <div
               className="w-full h-full"

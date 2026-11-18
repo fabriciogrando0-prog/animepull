@@ -37,7 +37,7 @@ export function CardBack({ theme }: { theme?: Theme } = {}) {
         className="select-none block object-cover"
         style={{
           width: '100%',
-          height: '133.33%',
+          height: '100%',
           userSelect: 'none',
           display: 'block',
         }}

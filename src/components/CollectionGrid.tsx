@@ -2,6 +2,7 @@ import { useDeferredValue, useMemo, useState } from 'react'
 import type { Character, Rarity } from './RarityBadge'
 import { RARITY_COLORS } from './RarityBadge'
 import { CardDetailModal } from './CardDetailModal'
+import { ColecaoCardFront } from './ColecaoCardFront'
 
 const RARITY_ORDER: { [key: string]: number } = {
   Mítico: 0,
@@ -155,25 +156,9 @@ export function CollectionGrid({ collection }: { collection: Character[] }) {
               type="button"
               key={character.id}
               onClick={() => setSelectedCard(character)}
-              className="aspect-[2/3] rounded-xl overflow-hidden relative border-2 border-solid m-0 p-0 bg-transparent text-left cursor-pointer"
+              className="aspect-[2/3] rounded-xl overflow-hidden border-2 border-solid m-0 p-0 bg-transparent cursor-pointer"
               style={{ borderColor: colors.primary }}>
-              <img
-                src={character.image.large}
-                className="w-full h-full object-cover"
-                loading="lazy"
-                decoding="async"
-                alt={character.name.full}
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-1">
-                <p
-                  className="line-clamp-1 text-[11px] text-white font-medium truncate"
-                  title={character.name.full}>
-                  {character.name.full}
-                </p>
-                <p className="text-[10px] text-white/80 truncate" title={character.rarity ?? 'Comum'}>
-                  {character.rarity ?? 'Comum'}
-                </p>
-              </div>
+              <ColecaoCardFront character={character} />
             </button>
           )
         })}
