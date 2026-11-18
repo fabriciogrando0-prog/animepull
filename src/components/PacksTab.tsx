@@ -7,7 +7,7 @@ interface PacksTabProps {
 }
 
 export function PacksTab({ onOpenPack }: PacksTabProps) {
-  const { theme, nextTheme } = useTheme()
+  const { theme, nextTheme, setThemeById } = useTheme()
 
   return (
     <div className="flex flex-col items-center gap-4 py-6 text-[#e5e7eb]">
@@ -26,6 +26,32 @@ export function PacksTab({ onOpenPack }: PacksTabProps) {
         Sortear outro pack
       </button>
       <div className="text-xs text-[#e5e7eb]/70">Packs disponíveis: {themes.length}</div>
+      <div className="text-xs uppercase text-[#e5e7eb]/70">Sets</div>
+      <div className="flex gap-3 overflow-x-auto max-w-[640px] mx-auto">
+        {themes.map((t) => {
+          const active = t.id === theme.id
+          return (
+            <button
+              key={t.id}
+              onClick={() => setThemeById(t.id)}
+              aria-pressed={active}
+              className="shrink-0 w-[72px] flex flex-col items-center gap-1 border-2 rounded-xl p-1"
+              style={{ borderColor: active ? t.palette.accent : 'transparent' }}
+            >
+              <img
+                src={`${import.meta.env.BASE_URL}packs/${t.arquivo}`}
+                alt=""
+                draggable={false}
+                className="h-[80px] object-contain"
+                onError={(e) => {
+                  ;(e.target as HTMLImageElement).style.display = 'none'
+                }}
+              />
+              <span className="text-[11px] truncate">{t.name}</span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
