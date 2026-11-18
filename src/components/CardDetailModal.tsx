@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { Character } from './RarityBadge'
-import { RARITY_COLORS } from './RarityBadge'
 import { ColecaoCardFront } from './ColecaoCardFront'
 import { CardBack as ThemeCardBack } from '../themes/CardBack'
 import { themes } from '../themes/index'
@@ -10,7 +9,6 @@ import { useTheme } from '../themes/ThemeContext'
 export function CardDetailModal({ card, onClose }: { card: Character; onClose: () => void }) {
   const { theme: currentTheme } = useTheme()
   const backTheme = themes.find((t) => t.id === (card.temaOrigem ?? currentTheme.id)) ?? currentTheme
-  const colors = RARITY_COLORS[card.rarity ?? 'Comum']
   const [flipped, setFlipped] = useState(false)
 
   useEffect(() => {
@@ -22,8 +20,8 @@ export function CardDetailModal({ card, onClose }: { card: Character; onClose: (
   }, [onClose])
 
   const cardStyle: React.CSSProperties = {
-    width: 'min(92vw, 520px)',
-    maxHeight: '88vh',
+    width: 'min(94vw, 600px)',
+    maxHeight: '92vh',
     aspectRatio: '2/3',
   }
 
@@ -76,16 +74,11 @@ export function CardDetailModal({ card, onClose }: { card: Character; onClose: (
             </div>
           </motion.div>
         </motion.div>
-        <div className="mt-6 flex flex-col items-center gap-2 text-gray-300">
-          <p className="text-sm font-semibold">{card.name.full}</p>
-          {card.name.native && <p className="text-xs text-gray-500">{card.name.native}</p>}
-          <p className="text-xs">Favoritos: {card.favourites.toLocaleString('pt-BR')}</p>
-        </div>
         <button
           type="button"
           onClick={onClose}
           className="absolute top-4 right-4 z-50 w-8 h-8 rounded flex items-center justify-center text-black border-2 border-solid"
-          style={{ backgroundColor: 'var(--bg)', borderColor: colors.primary }}
+          style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--accent)' }}
           aria-label="Fechar">
           ×
         </button>

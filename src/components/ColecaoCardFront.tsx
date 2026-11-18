@@ -14,7 +14,7 @@ export function ColecaoCardFront({ character }: ColecaoCardFrontProps) {
 
   return (
     <RarityFrame rarity={rarity} intensity={1}>
-      <div className="flex flex-col h-full w-full overflow-hidden">
+      <div className="flex flex-col h-full w-full overflow-hidden bg-[#0b0b14]">
         <div className="relative flex-1 overflow-hidden">
           <img
             src={character.image.large}
@@ -23,12 +23,18 @@ export function ColecaoCardFront({ character }: ColecaoCardFrontProps) {
             loading="lazy"
             decoding="async"
           />
-          {/* Faixa vertical integrada à carta com a cor da raridade */}
-          <div className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: colors.primary }} />
-          {/* Selo lateral de raridade */}
-          <div className="absolute top-4 left-4">
+          {/* Placa lateral de destaque da raridade */}
+          <div
+            className="absolute inset-y-0 left-0"
+            style={{
+              width: '14px',
+              backgroundColor: colors.primary,
+            }}
+          />
+          {/* Selo de raridade integrado */}
+          <div className="absolute top-4 left-4 z-10">
             <span
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg border border-white/20"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-xl border border-white/30"
               style={{
                 backgroundColor: colors.primary,
                 color: '#0b0b14',
@@ -39,10 +45,10 @@ export function ColecaoCardFront({ character }: ColecaoCardFrontProps) {
             </span>
           </div>
         </div>
-        {/* Faixa inferior integrada à carta: nome do personagem + anime */}
-        <div className="bg-[#0b0b14]/55 backdrop-blur-sm p-3 border-t border-white/10">
-          <h3 className="text-white font-semibold text-sm leading-tight">{character.name.full}</h3>
-          <p className="text-[#cbd5e1] text-[11px] mt-0.5 leading-snug">{animeTitle}</p>
+        {/* Faixa inferior integrada: nome do personagem + anime */}
+        <div className="bg-[#0b0b14]/90 border-t border-white/20 p-4">
+          <h3 className="text-white font-bold text-xl tracking-tight leading-snug">{character.name.full}</h3>
+          <p className="text-[#cbd5e1] text-sm mt-1.5 leading-snug">{animeTitle}</p>
         </div>
       </div>
     </RarityFrame>
