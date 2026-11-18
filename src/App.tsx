@@ -8,6 +8,7 @@ import { ColecaoTab } from './components/ColecaoTab'
 import { RankingTab } from './components/RankingTab'
 import { PackOpeningScreen } from './components/PackOpeningScreen'
 import { SummaryScreen } from './components/SummaryScreen'
+import { AdminPanel } from './components/AdminPanel'
 import { ThemeProvider } from './themes/ThemeContext'
 
 const CACHE_KEY = 'anilist_500_characters'
@@ -253,6 +254,7 @@ export default function App() {
   const [showSummary, setShowSummary] = useState(false)
   const [collection, setCollection] = useState<Character[]>(getCollection())
   const [activeTab, setActiveTab] = useState<Tab>('Packs')
+  const [showAdmin, setShowAdmin] = useState(false)
 
   const getRarityStats = useCallback(() => {
     return Object.entries(charactersByRarity).map(([rarity, chars]) => ({
@@ -334,31 +336,37 @@ export default function App() {
   return (
     <ThemeProvider>
       <>
-        <AppShell activeTab={activeTab} onTabChange={setActiveTab} collection={collection}>
-        {activeTab === 'Packs' && !showPack && <PacksTab onOpenPack={handleOpenPack} />}
-        {activeTab === 'Coleção' && <ColecaoTab collection={collection} />}
-        {activeTab === 'Ranking' && (
-          <RankingTab
-            characters={characters}
-            getRarityStats={getRarityStats}
-          />
-        )}
-      </AppShell>
-      {showPack && packCards.length > 0 && (
-        <PackOpeningScreen
-          cards={packCards}
-          collection={collection}
-          setCollection={setCollection}
-          onComplete={handlePackComplete}
-          onCancel={handlePackCancel}
-        />
-      )}
-      {showSummary && packCards.length > 0 && (
-        <SummaryScreen
-          cards={packCards}
-          onOpenAnother={handleSummaryOpenAnother}
-          onClose={handleSummaryClose}
-        />
+      {showAdmin ? (
+        <AdminPanel onClose={() => setShowAdmin(false)} />
+      ) : (
+        <>
+          <AppShell activeTab={activeTab} onTabChange={setActiveTab} collection={collection} onAdmin={() => setShowAdmin(true)}>
+            {activeTab === 'Packs' && !showPack && <PacksTab onOpenPack={handleOpenPack} />}
+            {activeTab === 'Coleção' && <ColecaoTab collection={collection} />}
+            {activeTab === 'Ranking' && (
+              <RankingTab
+                characters={characters}
+                getRarityStats={getRarityStats}
+              />
+            )}
+          </AppShell>
+          {showPack && packCards.length > 0 && (
+            <PackOpeningScreen
+              cards={packCards}
+              collection={collection}
+              setCollection={setCollection}
+              onComplete={handlePackComplete}
+              onCancel={handlePackCancel}
+            />
+          )}
+          {showSummary && packCards.length > 0 && (
+            <SummaryScreen
+              cards={packCards}
+              onOpenAnother={handleSummaryOpenAnother}
+              onClose={handleSummaryClose}
+            />
+          )}
+        </>
       )}
       </>
     </ThemeProvider>
