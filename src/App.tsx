@@ -336,9 +336,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <>
-      {showAdmin ? (
-        <AdminPanel onClose={() => setShowAdmin(false)} />
-      ) : (
+        {showAdmin ? (
+          <AdminPanel characters={characters} onClose={() => setShowAdmin(false)} />
+        ) : (
         <>
           <AppShell activeTab={activeTab} onTabChange={setActiveTab} collection={collection} onAdmin={() => setShowAdmin(true)}>
             {activeTab === 'Packs' && !showPack && <PacksTab onOpenPack={handleOpenPack} />}

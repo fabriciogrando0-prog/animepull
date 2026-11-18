@@ -1,4 +1,18 @@
-export function AdminPanel({ onClose }: { onClose: () => void }) {
+import type { Character } from './RarityBadge'
+import { ImageCollectorStats } from './ImageCollectorStats'
+import { CharacterGalleryAdmin } from './CharacterGalleryAdmin'
+
+interface AdminPanelProps {
+  onClose: () => void
+  characters: Character[]
+}
+
+export function AdminPanel({ onClose, characters }: AdminPanelProps) {
+  const total = characters.length
+  const withImage = characters.filter(c => Boolean(c.image.large)).length
+  const withoutImage = total - withImage
+  const anilistOriginal = withImage
+
   return (
     <div className="flex flex-col h-full bg-[#0b0b14] text-[#e5e7eb]">
       <header className="border-b border-gray-800 bg-[#0b0b14]/90 backdrop-blur sticky top-0 z-20">
@@ -22,10 +36,18 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                 Em desenvolvimento
               </span>
             </div>
-            <p className="text-gray-500 text-sm">
-              Nenhuma ação de busca, download ou alteração de imagem está disponível nesta etapa.
+            <p className="text-gray-500 text-sm mb-4">
+              Nenhuma busca, download ou alteração de imagem está disponível nesta etapa. Os dados abaixo vêm do
+              catálogo j\u00e1 carregado pelo jogo.
             </p>
+            <ImageCollectorStats
+              total={total}
+              withImage={withImage}
+              withoutImage={withoutImage}
+              anilistOriginal={anilistOriginal}
+            />
           </section>
+          <CharacterGalleryAdmin characters={characters} />
         </div>
       </main>
     </div>
