@@ -23,6 +23,7 @@ export function CardDetailModal({ card, onClose }: { card: Character; onClose: (
     width: 'min(94vw, 600px)',
     maxHeight: '92vh',
     aspectRatio: '2/3',
+    overflow: 'hidden',
   }
 
   return (
@@ -38,11 +39,12 @@ export function CardDetailModal({ card, onClose }: { card: Character; onClose: (
             style={{ ...cardStyle, cursor: 'pointer' }}
             whileTap={{ scale: 0.96 }}
             onClick={() => setFlipped((prev) => !prev)}
-            className="relative w-full h-full max-w-full max-h-full">
+            className="relative w-full h-full">
           <motion.div
             animate={{ rotateY: flipped ? 180 : 0 }}
             transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
             style={{
+              position: 'relative',
               transformStyle: 'preserve-3d',
               perspective: 1000,
               width: '100%',
