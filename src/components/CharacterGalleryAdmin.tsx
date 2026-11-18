@@ -10,11 +10,13 @@ interface CharacterGalleryAdminProps {
   characters: Character[]
   selectedIds: Set<number>
   onToggle: (id: number) => void
-  onSelectPage: (ids: number[]) => void
+  onSelectPage: (ids: number[], remove?: boolean) => void
   onClearSelection: () => void
   onSelectWithoutImage: () => void
   onPrepareBatch: () => void
 }
+
+const BATCH_LIMIT = 20
 
 export function CharacterGalleryAdmin({
   characters,
@@ -27,6 +29,7 @@ export function CharacterGalleryAdmin({
 }: CharacterGalleryAdminProps) {
   const [filter, setFilter] = useState<ImageFilter>('todos')
   const [page, setPage] = useState(1)
+  const [limitWarning, setLimitWarning] = useState<string | null>(null)
 
   let filtered = characters
   if (filter === 'com-imagem') {
@@ -45,6 +48,31 @@ export function CharacterGalleryAdmin({
         ? 'border-[#e5e7eb] text-[#e5e7eb] bg-[#e5e7eb]/10'
         : 'border-gray-600 text-gray-400 hover:border-[#e5e7eb] hover:text-[#e5e7eb]'
     }`
+
+  const handleSelectPage = () => {
+    const pageIds = items.map(c => c.id)
+    const allSelected = pageIds.length > 0 && pageIds.every(id => selectedIds.has(id))
+
+    if (allSelected) {
+      onSelectPage(pageIds, true)
+      setLimitWarning(null)
+      return
+    }
+
+    const toAdd = pageIds.filter(id => !selectedIds.has(id))
+    const space = BATCH_LIMIT - selectedIds.size
+    if (space <= 0) {
+      setLimitWarning('Limite de 20 personagens por lote atingido. Desmarque personagens para selecionar mais.')
+      return
+    }
+    const limited = toAdd.slice(0, space)
+    onSelectPage(limited, false)
+    if (limited.length < toAdd.length) {
+      setLimitWarning(`Limite de 20 personagens por lote atingido. Apenas ${limited.length} de ${toAdd.length} novos selecionados nesta p\u00e1gina.`)
+    } else {
+      setLimitWarning(null)
+    }
+  }
 
   return (
     <section className="rounded-xl border border-gray-800 bg-[#0b0b14]/50 p-6 mt-6">
@@ -75,9 +103,12 @@ export function CharacterGalleryAdmin({
             <span>Selecionados: </span>
             <span className="text-[#e5e7eb] font-medium">{selectedIds.size}</span>
           </div>
+          {limitWarning && (
+            <p className="text-xs text-[#fbbf24]">{limitWarning}</p>
+          )}
           <div className="flex gap-2">
             <button
-              onClick={() => onSelectPage(items.map(c => c.id))}
+              onClick={handleSelectPage}
               className="px-3 py-1 rounded border border-gray-600 text-gray-400 hover:text-[#e5e7eb] hover:border-[#e5e7eb] transition-colors"
             >
               Selecionar todos da p\u00e1gina

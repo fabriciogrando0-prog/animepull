@@ -27,10 +27,14 @@ export function AdminPanel({ onClose, characters }: AdminPanelProps) {
     })
   }
 
-  const selectPage = (ids: number[]) => {
+  const selectPage = (ids: number[], remove = false) => {
     setSelectedIds(prev => {
       const next = new Set(prev)
-      ids.forEach(id => next.add(id))
+      if (remove) {
+        ids.forEach(id => next.delete(id))
+      } else {
+        ids.forEach(id => next.add(id))
+      }
       return next
     })
   }
