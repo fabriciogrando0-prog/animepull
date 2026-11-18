@@ -5,12 +5,24 @@ import type { Theme } from './types'
 interface ThemeContextValue {
   theme: Theme
   nextTheme: () => void
+  setThemeById: (id: string) => void
 }
+
+const SELECTED_KEY = 'animepull_selected_pack'
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(themes[0])
+  const [theme, setTheme] = useState<Theme>(() => {
+    try {
+      const id = localStorage.getItem(SELECTED_KEY)
+      if (id) {
+        const found = themes.find(t => t.id === id)
+        if (found) return found
+      }
+    } catch {}
+    return themes[0]
+  })
 
   const applyVars = (t: Theme) => {
     const root = document.documentElement
@@ -24,14 +36,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     applyVars(theme)
+    try {
+      localStorage.setItem(SELECTED_KEY, theme.id)
+    } catch {}
   }, [theme])
 
   const nextTheme = () => {
     setTheme(prev => pickRandomTheme(prev.id))
   }
 
+  const setThemeById = (id: string) => {
+    const found = themes.find(t => t.id === id)
+    if (found) setTheme(found)
+  }
+
   return (
-    <ThemeContext.Provider value={{ theme, nextTheme }}>
+    <ThemeContext.Provider value={{ theme, nextTheme, setThemeById }}>
       {children}
     </ThemeContext.Provider>
   )
