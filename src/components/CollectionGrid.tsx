@@ -1,6 +1,7 @@
 import { useDeferredValue, useMemo, useState } from 'react'
 import type { Character, Rarity } from './RarityBadge'
 import { RARITY_COLORS } from './RarityBadge'
+import { CardDetailModal } from './CardDetailModal'
 
 const RARITY_ORDER: { [key: string]: number } = {
   Mítico: 0,
@@ -23,6 +24,7 @@ export function CollectionGrid({ collection }: { collection: Character[] }) {
   const [searchText, setSearchText] = useState('')
   const [selectedRarities, setSelectedRarities] = useState<Set<Rarity>>(new Set())
   const [sortBy, setSortBy] = useState<SortBy>('raridade')
+  const [selectedCard, setSelectedCard] = useState<Character | null>(null)
 
   const query = useDeferredValue(searchText)
   const q = normalize(query)
@@ -98,7 +100,8 @@ export function CollectionGrid({ collection }: { collection: Character[] }) {
   }
 
   return (
-    <section className="w-full max-w-7xl px-4 py-6">
+    <>
+      <section className="w-full max-w-7xl px-4 py-6">
       <input
         type="text"
         placeholder="Buscar carta ou anime..."
@@ -147,9 +150,11 @@ export function CollectionGrid({ collection }: { collection: Character[] }) {
         {sorted.map((character) => {
           const colors = RARITY_COLORS[character.rarity ?? 'Comum']
           return (
-            <div
+            <button
+              type="button"
               key={character.id}
-              className="aspect-[2/3] rounded-xl overflow-hidden relative border-2 border-solid"
+              onClick={() => setSelectedCard(character)}
+              className="aspect-[2/3] rounded-xl overflow-hidden relative border-2 border-solid m-0 p-0 bg-transparent text-left cursor-pointer"
               style={{ borderColor: colors.primary }}>
               <img
                 src={character.image.large}
@@ -168,10 +173,14 @@ export function CollectionGrid({ collection }: { collection: Character[] }) {
                   {character.rarity ?? 'Comum'}
                 </p>
               </div>
-            </div>
+            </button>
           )
         })}
       </div>
-    </section>
+      </section>
+      {selectedCard && (
+        <CardDetailModal card={selectedCard} onClose={() => setSelectedCard(null)} />
+      )}
+    </>
   )
 }
