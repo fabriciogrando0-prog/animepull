@@ -336,7 +336,7 @@ export default function App() {
       <>
         <AppShell activeTab={activeTab} onTabChange={setActiveTab} collection={collection}>
         {activeTab === 'Packs' && !showPack && <PacksTab onOpenPack={handleOpenPack} />}
-        {activeTab === 'Coleção' && <ColecaoTab />}
+        {activeTab === 'Coleção' && <ColecaoTab collection={collection} />}
         {activeTab === 'Ranking' && (
           <RankingTab
             characters={characters}
