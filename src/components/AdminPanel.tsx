@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import type { Character } from './RarityBadge'
 import { ImageCollectorStats } from './ImageCollectorStats'
 import { CharacterGalleryAdmin } from './CharacterGalleryAdmin'
+import { BatchConfirmation } from './BatchConfirmation'
 
 interface AdminPanelProps {
   onClose: () => void
@@ -12,6 +14,45 @@ export function AdminPanel({ onClose, characters }: AdminPanelProps) {
   const withImage = characters.filter(c => Boolean(c.image.large)).length
   const withoutImage = total - withImage
   const anilistOriginal = withImage
+
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [batch, setBatch] = useState<{ ids: number[]; names: string[] } | null>(null)
+
+  const toggleSelection = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const selectPage = (ids: number[]) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      ids.forEach(id => next.add(id))
+      return next
+    })
+  }
+
+  const clearSelection = () => setSelectedIds(new Set())
+
+  const selectWithoutImage = () => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      characters.filter(c => !Boolean(c.image.large)).forEach(c => next.add(c.id))
+      return next
+    })
+  }
+
+  const prepareBatch = () => {
+    if (selectedIds.size === 0) return
+    const selectedChars = characters.filter(c => selectedIds.has(c.id))
+    const batchChars = selectedChars.slice(0, 20)
+    setBatch({ ids: batchChars.map(c => c.id), names: batchChars.map(c => c.name.full) })
+  }
+
+  const confirmBatch = () => setBatch(null)
 
   return (
     <div className="flex flex-col h-full bg-[#0b0b14] text-[#e5e7eb]">
@@ -47,9 +88,26 @@ export function AdminPanel({ onClose, characters }: AdminPanelProps) {
               anilistOriginal={anilistOriginal}
             />
           </section>
-          <CharacterGalleryAdmin characters={characters} />
+          <CharacterGalleryAdmin
+            characters={characters}
+            selectedIds={selectedIds}
+            onToggle={toggleSelection}
+            onSelectPage={selectPage}
+            onClearSelection={clearSelection}
+            onSelectWithoutImage={selectWithoutImage}
+            onPrepareBatch={prepareBatch}
+          />
         </div>
       </main>
+      {batch && (
+        <BatchConfirmation
+          open
+          characters={characters.filter(c => batch.ids.includes(c.id))}
+          totalSelected={selectedIds.size}
+          onConfirm={confirmBatch}
+          onCancel={confirmBatch}
+        />
+      )}
     </div>
   )
 }

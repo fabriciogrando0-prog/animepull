@@ -8,9 +8,23 @@ type ImageFilter = 'todos' | 'com-imagem' | 'sem-imagem'
 
 interface CharacterGalleryAdminProps {
   characters: Character[]
+  selectedIds: Set<number>
+  onToggle: (id: number) => void
+  onSelectPage: (ids: number[]) => void
+  onClearSelection: () => void
+  onSelectWithoutImage: () => void
+  onPrepareBatch: () => void
 }
 
-export function CharacterGalleryAdmin({ characters }: CharacterGalleryAdminProps) {
+export function CharacterGalleryAdmin({
+  characters,
+  selectedIds,
+  onToggle,
+  onSelectPage,
+  onClearSelection,
+  onSelectWithoutImage,
+  onPrepareBatch,
+}: CharacterGalleryAdminProps) {
   const [filter, setFilter] = useState<ImageFilter>('todos')
   const [page, setPage] = useState(1)
 
@@ -48,8 +62,46 @@ export function CharacterGalleryAdmin({ characters }: CharacterGalleryAdminProps
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
           {items.map(char => (
-            <CharacterThumbnailAdmin key={char.id} character={char} />
+            <CharacterThumbnailAdmin
+              key={char.id}
+              character={char}
+              selected={selectedIds.has(char.id)}
+              onToggle={onToggle}
+            />
           ))}
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+          <div className="flex items-center gap-2 text-gray-400">
+            <span>Selecionados: </span>
+            <span className="text-[#e5e7eb] font-medium">{selectedIds.size}</span>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => onSelectPage(items.map(c => c.id))}
+              className="px-3 py-1 rounded border border-gray-600 text-gray-400 hover:text-[#e5e7eb] hover:border-[#e5e7eb] transition-colors"
+            >
+              Selecionar todos da p\u00e1gina
+            </button>
+            <button
+              onClick={onClearSelection}
+              className="px-3 py-1 rounded border border-gray-600 text-gray-400 hover:text-[#e5e7eb] hover:border-[#e5e7eb] transition-colors"
+            >
+              Limpar sele\u00e7\u00e3o
+            </button>
+            <button
+              onClick={onSelectWithoutImage}
+              className="px-3 py-1 rounded border border-gray-600 text-gray-400 hover:text-[#e5e7eb] hover:border-[#e5e7eb] transition-colors"
+            >
+              Selecionar sem imagem
+            </button>
+            <button
+              onClick={onPrepareBatch}
+              disabled={selectedIds.size === 0}
+              className="px-3 py-1 rounded border border-[#e5e7eb] text-[#e5e7eb] hover:bg-[#e5e7eb]/10 disabled:opacity-50 disabled:pointer-events-none transition-colors"
+            >
+              Preparar lote
+            </button>
+          </div>
         </div>
         <div className="flex items-center justify-between text-sm text-gray-400">
           <span>P\u00e1gina {currentPage} de {totalPages}</span>
