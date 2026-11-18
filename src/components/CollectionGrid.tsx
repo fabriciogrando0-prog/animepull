@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import type { Character } from './RarityBadge'
+import { useDeferredValue, useMemo, useState } from 'react'
+import type { Character, Rarity } from './RarityBadge'
 import { RARITY_COLORS } from './RarityBadge'
 
 const RARITY_ORDER: { [key: string]: number } = {
@@ -11,55 +11,139 @@ const RARITY_ORDER: { [key: string]: number } = {
   Comum: 5,
 }
 
+const RARITIES: Rarity[] = ['Mítico', 'Lendário', 'Épico', 'Raro', 'Incomum', 'Comum']
+
+type SortBy = 'raridade' | 'favoritos' | 'nome' | 'recentes'
+
+function normalize(text: string) {
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+}
+
 export function CollectionGrid({ collection }: { collection: Character[] }) {
-  const sorted = useMemo(
-    () =>
-      [...collection].sort((a, b) => {
-        const ra = RARITY_ORDER[a.rarity ?? 'Comum'] ?? 99
-        const rb = RARITY_ORDER[b.rarity ?? 'Comum'] ?? 99
-        if (ra !== rb) return ra - rb
-        return (b.favourites ?? 0) - (a.favourites ?? 0)
-      }),
-    [collection],
+  const [searchText, setSearchText] = useState('')
+  const [selectedRarities, setSelectedRarities] = useState<Set<Rarity>>(new Set())
+  const [sortBy, setSortBy] = useState<SortBy>('raridade')
+
+  const query = useDeferredValue(searchText)
+  const q = normalize(query)
+
+  const matchesQuery = (c: Character) => {
+    const haystack = [
+      c.name.full,
+      c.name.native ?? '',
+      ...c.media.nodes.map((n) => n.title.romaji),
+      ...c.media.nodes.map((n) => n.title.english ?? ''),
+    ].join(' ')
+    return normalize(haystack).includes(q)
+  }
+
+  const searchFiltered = useMemo(
+    () => collection.filter((c) => (q ? matchesQuery(c) : true)),
+    [collection, q],
   )
 
-  const total = collection.length
   const counts: { [key: string]: number } = {}
-  for (const c of collection) {
+  for (const c of searchFiltered) {
     const r = c.rarity ?? 'Comum'
     counts[r] = (counts[r] ?? 0) + 1
   }
-  const rarities = Object.entries(counts)
-    .filter(([, n]) => n > 0)
-    .sort((a, b) => RARITY_ORDER[a[0]] - RARITY_ORDER[b[0]])
 
-  if (total === 0) {
+  const filtered = useMemo(
+    () =>
+      selectedRarities.size === 0
+        ? searchFiltered
+        : searchFiltered.filter((c) => selectedRarities.has(c.rarity ?? 'Comum')),
+    [searchFiltered, selectedRarities],
+  )
+
+  const sorted = useMemo(() => {
+    const arr = [...filtered]
+    if (sortBy === 'favoritos') {
+      return arr.sort((a, b) => (b.favourites ?? 0) - (a.favourites ?? 0))
+    }
+    if (sortBy === 'nome') {
+      return arr.sort((a, b) => normalize(a.name.full).localeCompare(normalize(b.name.full)))
+    }
+    if (sortBy === 'recentes') {
+      return arr.reverse()
+    }
+    return arr.sort((a, b) => {
+      const ra = RARITY_ORDER[a.rarity ?? 'Comum'] ?? 99
+      const rb = RARITY_ORDER[b.rarity ?? 'Comum'] ?? 99
+      if (ra !== rb) return ra - rb
+      return (b.favourites ?? 0) - (a.favourites ?? 0)
+    })
+  }, [filtered, sortBy])
+
+  const total = collection.length
+  const showing = sorted.length
+
+  const clearFilters = () => {
+    setSearchText('')
+    setSelectedRarities(new Set())
+    setSortBy('raridade')
+  }
+
+  if (showing === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-gray-400">
-        <p className="text-lg">Você ainda não tem cartas. Abra um pack!</p>
+        <p className="text-lg">Nenhuma carta encontrada.</p>
+        <button
+          onClick={clearFilters}
+          className="mt-4 px-4 py-2 rounded border border-gray-600 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
+          Limpar filtros
+        </button>
       </div>
     )
   }
 
   return (
     <section className="w-full max-w-7xl px-4 py-6">
-      <div className="flex items-center gap-4 mb-6 text-sm">
-        <span className="font-semibold">Coleção: {total} cartas</span>
-        <div className="flex gap-2 flex-wrap">
-          {rarities.map(([rarity, n]) => {
-            const color = RARITY_COLORS[rarity as keyof typeof RARITY_COLORS]
-            return (
-              <span
-                key={rarity}
-                className="px-2 py-1 rounded border text-[10px] font-semibold border-solid"
-                style={{ borderColor: color.border.startsWith('#') ? color.border : 'currentColor' }}>
-                {rarity} {n}
-              </span>
-            )
-          })}
-        </div>
+      <input
+        type="text"
+        placeholder="Buscar carta ou anime..."
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        className="w-full max-w-[360px] px-3 py-2 rounded border text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600"
+      />
+      <div className="flex gap-2 flex-wrap mt-3">
+        {RARITIES.map((rarity) => {
+          const color = RARITY_COLORS[rarity]
+          const active = selectedRarities.has(rarity)
+          return (
+            <button
+              key={rarity}
+              onClick={() => {
+                setSelectedRarities((prev) => {
+                  const next = new Set(prev)
+                  if (next.has(rarity)) next.delete(rarity)
+                  else next.add(rarity)
+                  return next
+                })
+              }}
+              className={`px-3 py-1 rounded text-[11px] font-semibold border-2 border-solid transition cursor-pointer ${active ? '' : 'text-gray-400 dark:text-gray-500'}`}
+              style={{
+                borderColor: color.border.startsWith('#') ? color.border : 'currentColor',
+                ...(active ? { backgroundColor: color.primary, color: '#0b0b14' } : {}),
+              }}>
+              {rarity} {counts[rarity] ?? 0}
+            </button>
+          )
+        })}
       </div>
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-3 text-sm">
+        <span className="font-semibold">{showing} de {total} cartas</span>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as SortBy)}
+          className="px-2 py-1 rounded border text-sm bg-transparent cursor-pointer">
+          <option value="raridade">Raridade</option>
+          <option value="favoritos">Favoritos</option>
+          <option value="nome">Nome A-Z</option>
+          <option value="recentes">Mais recentes</option>
+        </select>
+      </div>
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 mt-4">
         {sorted.map((character) => {
           const colors = RARITY_COLORS[character.rarity ?? 'Comum']
           return (
