@@ -3,8 +3,29 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { handleRequest } from './scripts/imageDownload.ts'
 
+const localImagesMiddleware = () => ({
+  name: 'animepull-local-images',
+  configureServer(server) {
+    server.middlewares.use((req, res, next) => {
+      const url = req.url || ''
+      if (!url.startsWith('/__local/images/')) {
+        return next()
+      }
+      void handleRequest(req as any, res as any).then((handled) => {
+        if (!handled && !res.headersSent) next()
+      }).catch((err) => {
+        console.error('Local image middleware error:', err)
+        if (!res.headersSent) {
+          res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' })
+          res.end(JSON.stringify({ error: 'Erro interno' }))
+        }
+      })
+    })
+  },
+})
+
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), localImagesMiddleware()],
   server: {
     proxy: {
       '/api/anilist': {
@@ -34,22 +55,5 @@ export default defineConfig({
         }
       }
     },
-    configureServer: (server) => {
-      server.middlewares.use((req, res, next) => {
-        const url = req.url || ''
-        if (!url.startsWith('/__local/images/')) {
-          return next()
-        }
-        void handleRequest(req as any, res as any).then((handled) => {
-          if (!handled && !res.headersSent) next()
-        }).catch((err) => {
-          console.error('Local image middleware error:', err)
-          if (!res.headersSent) {
-            res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' })
-            res.end(JSON.stringify({ error: 'Erro interno' }))
-          }
-        })
-      })
-    }
   }
 })

@@ -61,7 +61,7 @@ export async function searchDanbooruImages(
       if (!fileUrl || seenUrls.has(fileUrl)) continue
 
       const rating = post.rating
-      if (rating !== 'safe') continue
+      if (rating !== 's') continue
 
       const width = post.width || 0
       const height = post.height || 0

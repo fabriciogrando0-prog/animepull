@@ -17,6 +17,7 @@ interface BatchResult {
   candidates: ImageCandidate[]
   danbooruImages: DanbooruImage[]
   danbooruError?: string
+  danbooruSearched: boolean
   status: 'encontrado' | 'revisar' | 'nao-encontrado' | 'erro'
   error?: string
   downloaded?: DownloadStatus
@@ -104,6 +105,7 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
       let candidates: ImageCandidate[] = []
       let danbooruImages: DanbooruImage[] = []
       let danbooruError: string | undefined
+      let danbooruSearched = false
       let status: BatchResult['status'] = 'nao-encontrado'
       let error: string | undefined
 
@@ -115,7 +117,8 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
           status = 'nao-encontrado'
         }
 
-        if (franchise && candidates.length > 0) {
+        if (franchise) {
+          danbooruSearched = true
           const danbooruResult = await searchDanbooruImages(
             char.name.full,
             franchise,
@@ -136,6 +139,7 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
         candidates,
         danbooruImages,
         danbooruError,
+        danbooruSearched,
         status,
         error,
       })
@@ -168,7 +172,9 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
 
     let danbooruImages: DanbooruImage[] = []
     let danbooruError: string | undefined
-    if (franchise && candidates.length > 0) {
+    let danbooruSearched = false
+    if (franchise) {
+      danbooruSearched = true
       const danbooruResult = await searchDanbooruImages(
         char.name.full,
         franchise,
@@ -181,9 +187,9 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
     setResults(prev => prev.map((r, i) => {
       if (i !== index) return r
       if (candidates.length > 0) {
-        return { ...r, candidates, danbooruImages, danbooruError, status: statusFromMatch(candidates[0].match), error: undefined }
+        return { ...r, candidates, danbooruImages, danbooruError, danbooruSearched, status: statusFromMatch(candidates[0].match), error: undefined }
       }
-      return { ...r, candidates: [], danbooruImages: [], danbooruError, status: 'nao-encontrado', error: 'Não encontrado na nova tentativa' }
+      return { ...r, candidates: [], danbooruImages: [], danbooruError, danbooruSearched, status: 'nao-encontrado', error: 'Não encontrado na nova tentativa' }
     }))
   }
 
@@ -451,7 +457,7 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
               )}
               </div>
 
-              {(result.danbooruImages.length > 0 || result.danbooruError) && (
+              {result.danbooruSearched && (
                 <div className="mt-3 border-t border-gray-700 pt-2">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-bold text-[#e5e7eb]">Imagens alternativas (Danbooru)</span>
