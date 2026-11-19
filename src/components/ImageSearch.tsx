@@ -1,24 +1,26 @@
 import { useState } from 'react'
-import { searchCharacters, type ImageCandidate, type MatchConfidence } from '../lib/anilistSearch'
+import { searchCharacters, type ImageCandidate, type ConfidenceLevel } from '../lib/anilistSearch'
 
-function MatchBadge({ match }: { match: MatchConfidence }) {
-  const styles: Record<MatchConfidence, string> = {
-    provavel: 'bg-[#16a34a]/20 border-[#16a34a] text-[#4ade80]',
-    incerta: 'bg-[#f59e0b]/20 border-[#f59e0b] text-[#fbbf24]',
-    'nao-encontrada': 'bg-[#ef4444]/20 border-[#ef4444] text-[#f87171]',
+function ConfidenceBadge({ confidence }: { confidence: ConfidenceLevel }) {
+  const styles: Record<ConfidenceLevel, string> = {
+    alta: 'bg-[#16a34a]/20 border-[#16a34a] text-[#4ade80]',
+    media: 'bg-[#f59e0b]/20 border-[#f59e0b] text-[#fbbf24]',
+    baixa: 'bg-[#ef4444]/20 border-[#ef4444] text-[#f87171]',
   }
-  const labels: Record<MatchConfidence, string> = {
-    provavel: 'Correspondência provável',
-    incerta: 'Verificar correspondência',
-    'nao-encontrada': 'Não encontrado',
+  const labels: Record<ConfidenceLevel, string> = {
+    alta: 'Alta confiança',
+    media: 'Média confiança',
+    baixa: 'Baixa confiança',
   }
 
   return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium border ${styles[match]}`}>
-      {labels[match]}
+    <span className={`px-2 py-0.5 rounded text-xs font-medium border ${styles[confidence]}`}>
+      {labels[confidence]}
     </span>
   )
 }
+
+export { ConfidenceBadge }
 
 export function ImageSearch() {
   const [name, setName] = useState('')
@@ -109,35 +111,64 @@ export function ImageSearch() {
         )}
       </div>
 
+      {candidates.length > 0 && (
+        <p className="text-xs text-gray-500 mb-4">
+          Resultados ordenados por pontuação (0 a 100). A pontuação é uma indicação interna de confiança, não uma garantia de acerto.
+        </p>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {candidates.map(candidate => (
-          <div key={candidate.id} className="rounded-lg border border-gray-700 bg-gray-900 p-3 flex flex-col h-full">
-            <div className="aspect-[2/3] rounded-md overflow-hidden bg-gray-800 mb-2">
-              {candidate.imageMedium ? (
-                <img
-                  src={candidate.imageMedium}
-                  alt={candidate.name}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">
-                  Sem imagem
-                </div>
+        {[...candidates].sort((a, b) => b.score - a.score || b.favourites - a.favourites || a.id - b.id).map((candidate, index) => {
+          const isTop = index === 0
+          return (
+            <div
+              key={candidate.id}
+              className={`rounded-lg border bg-gray-900 p-3 flex flex-col h-full ${
+                isTop ? 'border-[#fbbf24] ring-1 ring-[#fbbf24]/60' : 'border-gray-700'
+              }`}
+            >
+              <div className="aspect-[2/3] rounded-md overflow-hidden bg-gray-800 mb-2">
+                {candidate.imageMedium ? (
+                  <img
+                    src={candidate.imageMedium}
+                    alt={candidate.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">
+                    Sem imagem
+                  </div>
+                )}
+              </div>
+              <h4 className="text-sm font-semibold line-clamp-1 mb-1">{candidate.name}</h4>
+              {candidate.nativeName && (
+                <p className="text-xs text-gray-500 truncate mb-1">{candidate.nativeName}</p>
               )}
+              <p className="text-xs text-gray-400 truncate mb-1">
+                Franquia detectada: {candidate.franchiseDetected || '—'}
+              </p>
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <ConfidenceBadge confidence={candidate.confidence} />
+                <span className="text-xs font-bold text-[#e5e7eb]">
+                  Pontuação: {candidate.score}/100
+                </span>
+                {isTop && (
+                  <span className="px-2 py-0.5 rounded text-xs font-bold border border-[#fbbf24] text-[#fbbf24]">
+                    Mais confiável
+                  </span>
+                )}
+              </div>
+              {candidate.franchiseMismatch && (
+                <p className="text-xs text-[#fca5a5] font-medium mb-1">
+                  ⚠ Possível erro de franquia: detectado "{candidate.franchiseDetected}" não confere com a busca.
+                </p>
+              )}
+              <p className="text-xs text-gray-400 mb-2 line-clamp-2">{candidate.confidenceReason}</p>
+              <p className="text-xs text-gray-500 mb-2">{candidate.resolution}</p>
             </div>
-            <h4 className="text-sm font-semibold line-clamp-1 mb-1">{candidate.name}</h4>
-            {candidate.nativeName && (
-              <p className="text-xs text-gray-500 truncate mb-1">{candidate.nativeName}</p>
-            )}
-            <p className="text-xs text-gray-400 truncate mb-1">
-              Franquia detectada: {candidate.franchiseDetected || '—'}
-            </p>
-            <p className="text-xs text-gray-500 mb-2">{candidate.resolution}</p>
-            <MatchBadge match={candidate.match} />
-            <p className="text-xs text-gray-400 mt-1 line-clamp-2">{candidate.matchReason}</p>
-          </div>
-        ))}
+          )
+        })}
         {candidates.length === 0 && !loading && !error && (
           <p className="col-span-full text-center text-gray-500 text-sm">
             Busque um personagem para ver os resultados.

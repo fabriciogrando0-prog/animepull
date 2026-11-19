@@ -1,6 +1,11 @@
 import { useState, useRef } from 'react'
 import type { Character } from './RarityBadge'
-import { searchCharacters, type ImageCandidate, type MatchConfidence } from '../lib/anilistSearch'
+import {
+  searchCharacters,
+  type ImageCandidate,
+  type MatchConfidence,
+} from '../lib/anilistSearch'
+import { ConfidenceBadge } from './ImageSearch'
 
 interface BatchResult {
   characterId: number
@@ -60,8 +65,8 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
       try {
         const candidates = await searchCharacters(variant, franchise || undefined)
         if (candidates.length === 0) continue
-        const best = candidates[0]
-        if (best.match !== 'nao-encontrada') return best
+        const best = candidates.reduce((top, current) => (current.score > top.score ? current : top), candidates[0])
+        if (best && best.score > 0) return best
       } catch {
         continue
       }
@@ -221,7 +226,12 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
           const candidate = result.candidate
           const hasImage = Boolean(candidate?.imageMedium)
           return (
-            <div key={result.characterId} className="rounded-lg border border-gray-700 bg-gray-900 p-3 flex flex-col gap-2">
+            <div
+              key={result.characterId}
+              className={`rounded-lg border bg-gray-900 p-3 flex flex-col gap-2 ${
+                candidate?.confidence === 'alta' ? 'border-[#fbbf24]/60' : 'border-gray-700'
+              }`}
+            >
               <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                 <div className="aspect-[2/3] w-20 rounded-md overflow-hidden bg-gray-800 flex-shrink-0">
                   {hasImage && candidate ? (
@@ -256,6 +266,20 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
                     <p className="text-xs text-gray-400 truncate mb-1">
                       Encontrado: {candidate.name} &bull; Franquia: {candidate.franchiseDetected || '—'} &bull; {candidate.resolution}
                     </p>
+                  )}
+                  {candidate && (
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <span className="text-xs font-bold text-[#e5e7eb]">Pontuação: {candidate.score}/100</span>
+                      <ConfidenceBadge confidence={candidate.confidence} />
+                    </div>
+                  )}
+                  {candidate && candidate.franchiseMismatch && (
+                    <p className="text-xs text-[#fca5a5] font-medium mb-1">
+                      ⚠ Possível erro de franquia: detectado "{candidate.franchiseDetected}" não confere com a busca.
+                    </p>
+                  )}
+                  {candidate && (
+                    <p className="text-xs text-gray-500 mb-1 line-clamp-1">{candidate.confidenceReason}</p>
                   )}
                   {!candidate && result.error && (
                     <p className="text-xs text-[#f87171] mb-1">{result.error}</p>
