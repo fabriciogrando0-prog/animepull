@@ -13,7 +13,7 @@ interface BatchResult {
   characterId: number
   searchedName: string
   searchedFranchise: string | null
-  candidate: ImageCandidate | null
+  candidates: ImageCandidate[]
   status: 'encontrado' | 'revisar' | 'nao-encontrado' | 'erro'
   error?: string
   downloaded?: DownloadStatus
@@ -59,10 +59,10 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
     name: string,
     franchise: string | null,
     triedQueries: Set<string>
-  ): Promise<ImageCandidate | null> => {
+  ): Promise<ImageCandidate[]> => {
     const variants = nameVariants(name)
     for (const variant of variants) {
-      if (cancelledRef.current) return null
+      if (cancelledRef.current) return []
       const queryKey = `${variant.toLowerCase()}|${(franchise || '').toLowerCase()}`
       if (triedQueries.has(queryKey)) continue
       triedQueries.add(queryKey)
@@ -70,13 +70,13 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
       try {
         const candidates = await searchCharacters(variant, franchise || undefined)
         if (candidates.length === 0) continue
-        const best = candidates.reduce((top, current) => (current.score > top.score ? current : top), candidates[0])
-        if (best && best.score > 0) return best
+        const valid = candidates.filter(c => c.score > 0)
+        if (valid.length > 0) return valid.slice(0, 6)
       } catch {
         continue
       }
     }
-    return null
+    return []
   }
 
   const runBatch = async () => {
@@ -98,14 +98,14 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
       const franchise = detectFranchiseFromCharacter(char)
       setProgress({ current: i, total: selectedChars.length })
 
-      let candidate: ImageCandidate | null = null
+      let candidates: ImageCandidate[] = []
       let status: BatchResult['status'] = 'nao-encontrado'
       let error: string | undefined
 
       try {
-        candidate = await searchWithFallbacks(char.name.full, franchise, triedQueries)
-        if (candidate) {
-          status = statusFromMatch(candidate.match)
+        candidates = await searchWithFallbacks(char.name.full, franchise, triedQueries)
+        if (candidates.length > 0) {
+          status = statusFromMatch(candidates[0].match)
         } else {
           status = 'nao-encontrado'
         }
@@ -118,7 +118,7 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
         characterId: char.id,
         searchedName: char.name.full,
         searchedFranchise: franchise,
-        candidate,
+        candidates,
         status,
         error,
       })
@@ -147,14 +147,14 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
 
     const franchise = detectFranchiseFromCharacter(char)
     const triedQueries = new Set<string>()
-    const candidate = await searchWithFallbacks(char.name.full, franchise, triedQueries)
+    const candidates = await searchWithFallbacks(char.name.full, franchise, triedQueries)
 
     setResults(prev => prev.map((r, i) => {
       if (i !== index) return r
-      if (candidate) {
-        return { ...r, candidate, status: statusFromMatch(candidate.match), error: undefined }
+      if (candidates.length > 0) {
+        return { ...r, candidates, status: statusFromMatch(candidates[0].match), error: undefined }
       }
-      return { ...r, status: 'nao-encontrado', error: 'Não encontrado na nova tentativa' }
+      return { ...r, candidates: [], status: 'nao-encontrado', error: 'Não encontrado na nova tentativa' }
     }))
   }
 
@@ -189,11 +189,11 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
   }
 
   const downloadItems: DownloadItem[] = results
-    .filter((r) => Boolean(r.candidate) && r.candidate?.confidence === 'alta')
+    .filter(r => r.candidates.length > 0 && r.candidates[0].confidence === 'alta')
     .map((r) => {
-      const c = r.candidate as ImageCandidate
+      const c = r.candidates[0]
       return {
-        characterId: r.characterId,
+        characterId: c.id,
         name: r.searchedName,
         franchise: r.searchedFranchise,
         imageUrl: c.imageLarge,
@@ -272,32 +272,18 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
 
       <div className="space-y-3">
         {results.map((result, index) => {
-          const candidate = result.candidate
-          const hasImage = Boolean(candidate?.imageMedium)
+          const candidates = result.candidates
+          const hasAnyImage = candidates.some(c => Boolean(c.imageMedium))
           return (
             <div
               key={result.characterId}
               className={`rounded-lg border bg-gray-900 p-3 flex flex-col gap-2 ${
-                candidate?.confidence === 'alta' ? 'border-[#fbbf24]/60' : 'border-gray-700'
+                candidates.some(c => c.confidence === 'alta') ? 'border-[#fbbf24]/60' : 'border-gray-700'
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-                <div className="aspect-[2/3] w-20 rounded-md overflow-hidden bg-gray-800 flex-shrink-0">
-                  {hasImage && candidate ? (
-                    <img
-                      src={candidate.imageMedium}
-                      alt={candidate.name}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">
-                      Sem imagem
-                    </div>
-                  )}
-                </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start gap-2">
+                  <div className="flex justify-between items-start gap-2 mb-1">
                     <h4 className="text-sm font-semibold line-clamp-1 text-[#e5e7eb]">{result.searchedName}</h4>
                     <span
                       className={`px-2 py-0.5 rounded text-xs font-medium border ${
@@ -311,93 +297,127 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
                       {result.status === 'encontrado' ? 'Encontrado' : result.status === 'revisar' ? 'Revisar' : 'Não encontrado'}
                     </span>
                   </div>
-                  {candidate && (
-                    <p className="text-xs text-gray-400 truncate mb-1">
-                      Encontrado: {candidate.name} &bull; Franquia: {candidate.franchiseDetected || '—'} &bull; {candidate.resolution}
-                    </p>
-                  )}
-                  {candidate && (
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <span className="text-xs font-bold text-[#e5e7eb]">Pontuação: {candidate.score}/100</span>
-                      <ConfidenceBadge confidence={candidate.confidence} />
-                    </div>
-                  )}
-                  {candidate && candidate.franchiseMismatch && (
-                    <p className="text-xs text-[#fca5a5] font-medium mb-1">
-                      ⚠ Possível erro de franquia: detectado "{candidate.franchiseDetected}" não confere com a busca.
-                    </p>
-                  )}
-                  {candidate && (
-                    <p className="text-xs text-gray-500 mb-1 line-clamp-1">{candidate.confidenceReason}</p>
-                  )}
-                  {!candidate && result.error && (
+                  {!hasAnyImage && result.error && (
                     <p className="text-xs text-[#f87171] mb-1">{result.error}</p>
                   )}
-                  <div className="flex gap-2">
-                    {result.status !== 'encontrado' && (
-                      <button
-                        onClick={() => retryResult(index)}
-                        disabled={isSearching}
-                        className="px-3 py-1 rounded border border-gray-600 text-gray-400 hover:text-[#e5e7eb] hover:border-[#e5e7eb] transition-colors text-sm disabled:opacity-50"
-                      >
-                        Pesquisar novamente
-                      </button>
-                    )}
-                    {candidate && (
-                      <button
-                        onClick={() =>
-                          downloadOne({
-                            characterId: result.characterId,
-                            name: result.searchedName,
-                            franchise: result.searchedFranchise,
-                            imageUrl: candidate.imageLarge,
-                            confidence: candidate.confidence,
-                            score: candidate.score,
-                          })
-                        }
-                        disabled={
-                          downloadingIndividual.has(candidate.id)
-                        }
-                        className="px-3 py-1 rounded border text-sm transition-colors ${
-                          candidate.confidence === 'alta'
-                            ? 'border-[#e5e7eb] text-[#e5e7eb] hover:bg-[#e5e7eb]/10 disabled:opacity-50 disabled:pointer-events-none'
-                            : 'border-gray-600 text-gray-600'
-                        }"
-                        title={
-                          candidate.confidence === 'alta'
-                            ? 'Baixar imagem (alta confiança)'
-                            : 'Baixe apenas com aprovação manual (confiança não alta)'
-                        }
-                      >
-                        {downloadingIndividual.has(candidate.id)
-                          ? 'Baixando...'
-                          : candidate.confidence === 'alta'
-                            ? 'Baixar'
-                            : 'Aprovar'}
-                      </button>
-                    )}
-                    {candidate && candidate.matchReason && (
-                      <span className="text-xs text-gray-500">{candidate.matchReason}</span>
-                    )}
-                    {candidate && result.downloaded && (
-                      <span
-                        className={`text-[10px] font-bold ml-2 px-1.5 py-0.5 rounded border ${
-                          result.downloaded === 'baixado'
-                            ? 'text-[#4ade80] border-[#16a34a]/50'
-                            : result.downloaded === 'ignorado'
-                              ? 'text-[#fbbf24] border-[#f59e0b]/50'
-                              : 'text-[#f87171] border-[#ef4444]/50'
-                        }`}
-                      >
-                        {result.downloaded === 'baixado'
-                          ? 'Salvo'
-                          : result.downloaded === 'ignorado'
-                            ? 'Já existe'
-                            : 'Falha'}
-                      </span>
-                    )}
-                  </div>
+                  {!hasAnyImage && candidates.length === 0 && (
+                    <p className="text-xs text-gray-500 mb-1">Nenhum candidato encontrado.</p>
+                  )}
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
+                {candidates.map((cand, ci) => {
+                  const hasImage = Boolean(cand.imageMedium)
+                  return (
+                    <div
+                      key={ci}
+                      className={`rounded-lg border p-2 flex flex-col gap-2 bg-gray-800 ${
+                        cand.confidence === 'alta' ? 'border-[#fbbf24]/40' : 'border-gray-700'
+                      }`}
+                    >
+                      <div className="aspect-[2/3] w-full rounded-md overflow-hidden bg-gray-700 flex-shrink-0">
+                        {hasImage ? (
+                          <img
+                            src={cand.imageMedium}
+                            alt={cand.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">
+                            Sem imagem
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-400 truncate mb-1">
+                          {cand.name} &bull; {cand.franchiseDetected || '—'}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <span className="text-xs font-bold text-[#e5e7eb]">Pontuação: {cand.score}/100</span>
+                          <ConfidenceBadge confidence={cand.confidence} />
+                        </div>
+                        {cand.franchiseMismatch && (
+                          <p className="text-xs text-[#fca5a5] font-medium mb-1">
+                            ⚠ Possível erro de franquia: detectado "{cand.franchiseDetected}" não confere com a busca.
+                          </p>
+                        )}
+                        <p className="text-xs text-gray-500 mb-1 line-clamp-1">{cand.confidenceReason}</p>
+                        <div className="flex gap-2 mt-1">
+                          <button
+                            onClick={() =>
+                              downloadOne({
+                                characterId: result.characterId,
+                                name: result.searchedName,
+                                franchise: result.searchedFranchise,
+                                imageUrl: cand.imageLarge,
+                                confidence: cand.confidence,
+                                score: cand.score,
+                              })
+                            }
+                            disabled={downloadingIndividual.has(cand.id)}
+                            className="px-2 py-1 rounded border text-xs transition-colors ${
+                              cand.confidence === 'alta'
+                                ? 'border-[#e5e7eb] text-[#e5e7eb] hover:bg-[#e5e7eb]/10 disabled:opacity-50 disabled:pointer-events-none'
+                                : 'border-gray-600 text-gray-600'
+                            }"
+                            title={
+                              cand.confidence === 'alta'
+                                ? 'Baixar imagem (alta confiança)'
+                                : 'Baixe apenas com aprovação manual (confiança não alta)'
+                            }
+                          >
+                            {downloadingIndividual.has(cand.id)
+                              ? 'Baixando...'
+                              : cand.confidence === 'alta'
+                                ? 'Baixar'
+                                : 'Aprovar'}
+                          </button>
+                          {cand.matchReason && (
+                            <span className="text-xs text-gray-500">{cand.matchReason}</span>
+                          )}
+                        </div>
+                        {result.downloaded && (
+                          <span
+                            className={`text-[10px] font-bold ml-2 px-1.5 py-0.5 rounded border ${
+                              result.downloaded === 'baixado'
+                                ? 'text-[#4ade80] border-[#16a34a]/50'
+                                : result.downloaded === 'ignorado'
+                                  ? 'text-[#fbbf24] border-[#f59e0b]/50'
+                                  : 'text-[#f87171] border-[#ef4444]/50'
+                            }`}
+                          >
+                            {result.downloaded === 'baixado'
+                              ? 'Salvo'
+                              : result.downloaded === 'ignorado'
+                                ? 'Já existe'
+                                : 'Falha'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+                {!hasAnyImage && candidates.length === 0 && (
+                  <div className="col-span-3 rounded-lg border p-2 flex flex-col items-center justify-center bg-gray-800">
+                    <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">
+                      Sem imagem
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 mt-2">
+                {result.status !== 'encontrado' && (
+                  <button
+                    onClick={() => retryResult(index)}
+                    disabled={isSearching}
+                    className="px-3 py-1 rounded border border-gray-600 text-gray-400 hover:text-[#e5e7eb] hover:border-[#e5e7eb] transition-colors text-sm disabled:opacity-50"
+                  >
+                    Pesquisar novamente
+                  </button>
+                )}
               </div>
             </div>
           )
