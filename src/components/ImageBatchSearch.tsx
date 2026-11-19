@@ -6,6 +6,8 @@ import {
   type MatchConfidence,
 } from '../lib/anilistSearch'
 import { ConfidenceBadge } from './ImageSearch'
+import type { DownloadItem, DownloadStatus } from '../lib/imageDownloadTypes'
+import { ImageBatchDownload } from './ImageBatchDownload'
 
 interface BatchResult {
   characterId: number
@@ -14,10 +16,12 @@ interface BatchResult {
   candidate: ImageCandidate | null
   status: 'encontrado' | 'revisar' | 'nao-encontrado' | 'erro'
   error?: string
+  downloaded?: DownloadStatus
 }
 
 const BATCH_LIMIT = 20
 const BATCH_DELAY = 800
+const API = '/__local/images'
 
 function detectFranchiseFromCharacter(character: Character): string | null {
   const anime = character.media.nodes.find(n => n.type === 'ANIME')
@@ -47,6 +51,7 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
   const cancelledRef = useRef(false)
   const [progress, setProgress] = useState({ current: 0, total: 0 })
   const [results, setResults] = useState<BatchResult[]>([])
+  const [downloadingIndividual, setDownloadingIndividual] = useState<Set<number>>(new Set())
 
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -152,6 +157,50 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
       return { ...r, status: 'nao-encontrado', error: 'Não encontrado na nova tentativa' }
     }))
   }
+
+  const downloadOne = async (item: DownloadItem) => {
+    if (item.confidence !== 'alta') {
+      const aprovado = window.confirm(
+        `A confiança deste candidato é "${item.confidence}". Deseja baixar mesmo assim?`,
+      )
+      if (!aprovado) return
+    }
+    setDownloadingIndividual((prev) => new Set([...prev, item.characterId]))
+    try {
+      const res = await fetch(`${API}/download`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item),
+      })
+      const result = await res.json()
+      setResults((prev) =>
+        prev.map((r) =>
+          r.characterId === item.characterId ? { ...r, downloaded: result.status } : r,
+        ),
+      )
+      return result
+    } finally {
+      setDownloadingIndividual((prev) => {
+        const next = new Set(prev)
+        next.delete(item.characterId)
+        return next
+      })
+    }
+  }
+
+  const downloadItems: DownloadItem[] = results
+    .filter((r) => Boolean(r.candidate) && r.candidate?.confidence === 'alta')
+    .map((r) => {
+      const c = r.candidate as ImageCandidate
+      return {
+        characterId: r.characterId,
+        name: r.searchedName,
+        franchise: r.searchedFranchise,
+        imageUrl: c.imageLarge,
+        confidence: 'alta' as const,
+        score: c.score,
+      }
+    })
 
   const encontrados = results.filter(r => r.status === 'encontrado').length
   const revisar = results.filter(r => r.status === 'revisar').length
@@ -294,8 +343,59 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
                         Pesquisar novamente
                       </button>
                     )}
+                    {candidate && (
+                      <button
+                        onClick={() =>
+                          downloadOne({
+                            characterId: result.characterId,
+                            name: result.searchedName,
+                            franchise: result.searchedFranchise,
+                            imageUrl: candidate.imageLarge,
+                            confidence: candidate.confidence,
+                            score: candidate.score,
+                          })
+                        }
+                        disabled={
+                          downloadingIndividual.has(candidate.id) ||
+                          candidate.confidence !== 'alta'
+                        }
+                        className="px-3 py-1 rounded border text-sm transition-colors ${
+                          candidate.confidence === 'alta'
+                            ? 'border-[#e5e7eb] text-[#e5e7eb] hover:bg-[#e5e7eb]/10 disabled:opacity-50 disabled:pointer-events-none'
+                            : 'border-gray-600 text-gray-600'
+                        }"
+                        title={
+                          candidate.confidence === 'alta'
+                            ? 'Baixar imagem (alta confiança)'
+                            : 'Baixe apenas com aprovação manual (confiança não alta)'
+                        }
+                      >
+                        {downloadingIndividual.has(candidate.id)
+                          ? 'Baixando...'
+                          : candidate.confidence === 'alta'
+                            ? 'Baixar'
+                            : 'Aprovar'}
+                      </button>
+                    )}
                     {candidate && candidate.matchReason && (
                       <span className="text-xs text-gray-500">{candidate.matchReason}</span>
+                    )}
+                    {candidate && result.downloaded && (
+                      <span
+                        className={`text-[10px] font-bold ml-2 px-1.5 py-0.5 rounded border ${
+                          result.downloaded === 'baixado'
+                            ? 'text-[#4ade80] border-[#16a34a]/50'
+                            : result.downloaded === 'ignorado'
+                              ? 'text-[#fbbf24] border-[#f59e0b]/50'
+                              : 'text-[#f87171] border-[#ef4444]/50'
+                        }`}
+                      >
+                        {result.downloaded === 'baixado'
+                          ? 'Salvo'
+                          : result.downloaded === 'ignorado'
+                            ? 'Já existe'
+                            : 'Falha'}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -304,6 +404,8 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
           )
         })}
       </div>
+
+      <ImageBatchDownload items={downloadItems} />
     </section>
   )
 }
