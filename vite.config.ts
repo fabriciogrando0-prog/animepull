@@ -23,6 +23,7 @@ export default defineConfig({
       '/api/danbooru': {
         target: 'https://danbooru.donmai.us',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/danbooru/, ''),
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.log('Proxy error:', err)
