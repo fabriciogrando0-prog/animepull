@@ -4,6 +4,7 @@ import { ImageCollectorStats } from './ImageCollectorStats'
 import { CharacterGalleryAdmin } from './CharacterGalleryAdmin'
 import { BatchConfirmation } from './BatchConfirmation'
 import { ImageSearch } from './ImageSearch'
+import { ImageBatchSearch } from './ImageBatchSearch'
 
 interface AdminPanelProps {
   onClose: () => void
@@ -94,6 +95,7 @@ export function AdminPanel({ onClose, characters }: AdminPanelProps) {
             />
           </section>
           <ImageSearch />
+          <ImageBatchSearch characters={characters} selectedIds={selectedIds} />
           <CharacterGalleryAdmin
             characters={characters}
             selectedIds={selectedIds}
