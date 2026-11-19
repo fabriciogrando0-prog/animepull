@@ -451,7 +451,7 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
               )}
               </div>
 
-              {result.danbooruImages.length > 0 || result.danbooruError && (
+              {(result.danbooruImages.length > 0 || result.danbooruError) && (
                 <div className="mt-3 border-t border-gray-700 pt-2">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-bold text-[#e5e7eb]">Imagens alternativas (Danbooru)</span>
