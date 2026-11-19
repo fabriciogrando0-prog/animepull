@@ -37,7 +37,7 @@ export async function searchDanbooruImages(
 
   const charTag = normalizeTag(characterName)
   const franchiseTag = normalizeTag(franchise)
-  const tags = `${charTag}+${franchiseTag}+rating:safe`
+  const tags = `${charTag} ${franchiseTag} rating:safe`
 
   try {
     const response = await fetch(
