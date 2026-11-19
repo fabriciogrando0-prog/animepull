@@ -3,6 +3,7 @@ import type { Character } from './RarityBadge'
 import { ImageCollectorStats } from './ImageCollectorStats'
 import { CharacterGalleryAdmin } from './CharacterGalleryAdmin'
 import { BatchConfirmation } from './BatchConfirmation'
+import { ImageSearch } from './ImageSearch'
 
 interface AdminPanelProps {
   onClose: () => void
@@ -82,8 +83,8 @@ export function AdminPanel({ onClose, characters }: AdminPanelProps) {
               </span>
             </div>
             <p className="text-gray-500 text-sm mb-4">
-              Nenhuma busca, download ou alteração de imagem está disponível nesta etapa. Os dados abaixo vêm do
-              catálogo j\u00e1 carregado pelo jogo.
+              A busca de personagens usa a AniList (via proxy '/api/anilist') e não baixa nem altera imagens. Os cards
+              abaixo exibem o catálogo já carregado pelo jogo.
             </p>
             <ImageCollectorStats
               total={total}
@@ -92,6 +93,7 @@ export function AdminPanel({ onClose, characters }: AdminPanelProps) {
               anilistOriginal={anilistOriginal}
             />
           </section>
+          <ImageSearch />
           <CharacterGalleryAdmin
             characters={characters}
             selectedIds={selectedIds}
