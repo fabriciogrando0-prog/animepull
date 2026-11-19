@@ -20,6 +20,7 @@ export function ImageBatchDownload({ items, onChange }: ImageBatchDownloadProps)
     current: string | null
     results: DownloadResult[]
   } | null>(null)
+  const [downloadingIndividual, setDownloadingIndividual] = useState<Set<number>>(new Set())
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const alta = items.filter((i) => i.confidence === 'alta')
@@ -81,6 +82,7 @@ export function ImageBatchDownload({ items, onChange }: ImageBatchDownloadProps)
       if (!aprovado) return
     }
 
+    setDownloadingIndividual((prev) => new Set([...prev, item.characterId]))
     try {
       const res = await fetch(`${API}/download`, {
         method: 'POST',
@@ -99,6 +101,12 @@ export function ImageBatchDownload({ items, onChange }: ImageBatchDownloadProps)
       }
       onChange?.([failed])
       return failed
+    } finally {
+      setDownloadingIndividual((prev) => {
+        const next = new Set(prev)
+        next.delete(item.characterId)
+        return next
+      })
     }
   }
 
@@ -238,14 +246,18 @@ export function ImageBatchDownload({ items, onChange }: ImageBatchDownloadProps)
                 <p className="text-xs text-gray-500 truncate mb-2">{item.franchise || '—'}</p>
                 <button
                   onClick={() => downloadOne(item)}
-                  disabled={!isAlta}
+                  disabled={downloadingIndividual.has(item.characterId)}
                   className="w-full px-3 py-2 rounded border text-sm transition-colors ${
                     isAlta
                       ? 'border-[#e5e7eb] text-[#e5e7eb] hover:bg-[#e5e7eb]/10'
                       : 'border-gray-600 text-gray-600'
                   }"
                 >
-                  {isAlta ? 'Baixar' : 'Aprova\u00e7\u00e3o necess\u00e1ria'}
+                  {downloadingIndividual.has(item.characterId)
+                    ? 'Baixando...'
+                    : isAlta
+                      ? 'Baixar'
+                      : 'Aprovar'}
                 </button>
               </div>
             )

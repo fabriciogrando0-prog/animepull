@@ -356,8 +356,7 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
                           })
                         }
                         disabled={
-                          downloadingIndividual.has(candidate.id) ||
-                          candidate.confidence !== 'alta'
+                          downloadingIndividual.has(candidate.id)
                         }
                         className="px-3 py-1 rounded border text-sm transition-colors ${
                           candidate.confidence === 'alta'
