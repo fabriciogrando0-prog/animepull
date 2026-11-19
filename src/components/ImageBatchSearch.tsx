@@ -7,6 +7,7 @@ import {
 } from '../lib/anilistSearch'
 import { ConfidenceBadge } from './ImageSearch'
 import type { DownloadItem, DownloadStatus } from '../lib/imageDownloadTypes'
+import { searchDanbooruImages, type DanbooruImage } from '../lib/animeImageSource'
 import { ImageBatchDownload } from './ImageBatchDownload'
 
 interface BatchResult {
@@ -14,6 +15,8 @@ interface BatchResult {
   searchedName: string
   searchedFranchise: string | null
   candidates: ImageCandidate[]
+  danbooruImages: DanbooruImage[]
+  danbooruError?: string
   status: 'encontrado' | 'revisar' | 'nao-encontrado' | 'erro'
   error?: string
   downloaded?: DownloadStatus
@@ -99,6 +102,8 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
       setProgress({ current: i, total: selectedChars.length })
 
       let candidates: ImageCandidate[] = []
+      let danbooruImages: DanbooruImage[] = []
+      let danbooruError: string | undefined
       let status: BatchResult['status'] = 'nao-encontrado'
       let error: string | undefined
 
@@ -108,6 +113,16 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
           status = statusFromMatch(candidates[0].match)
         } else {
           status = 'nao-encontrado'
+        }
+
+        if (franchise && candidates.length > 0) {
+          const danbooruResult = await searchDanbooruImages(
+            char.name.full,
+            franchise,
+            char.id
+          )
+          danbooruImages = danbooruResult.images
+          danbooruError = danbooruResult.error
         }
       } catch (err) {
         error = err instanceof Error ? err.message : 'Erro ao buscar'
@@ -119,6 +134,8 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
         searchedName: char.name.full,
         searchedFranchise: franchise,
         candidates,
+        danbooruImages,
+        danbooruError,
         status,
         error,
       })
@@ -149,12 +166,24 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
     const triedQueries = new Set<string>()
     const candidates = await searchWithFallbacks(char.name.full, franchise, triedQueries)
 
+    let danbooruImages: DanbooruImage[] = []
+    let danbooruError: string | undefined
+    if (franchise && candidates.length > 0) {
+      const danbooruResult = await searchDanbooruImages(
+        char.name.full,
+        franchise,
+        char.id
+      )
+      danbooruImages = danbooruResult.images
+      danbooruError = danbooruResult.error
+    }
+
     setResults(prev => prev.map((r, i) => {
       if (i !== index) return r
       if (candidates.length > 0) {
-        return { ...r, candidates, status: statusFromMatch(candidates[0].match), error: undefined }
+        return { ...r, candidates, danbooruImages, danbooruError, status: statusFromMatch(candidates[0].match), error: undefined }
       }
-      return { ...r, candidates: [], status: 'nao-encontrado', error: 'Não encontrado na nova tentativa' }
+      return { ...r, candidates: [], danbooruImages: [], danbooruError, status: 'nao-encontrado', error: 'Não encontrado na nova tentativa' }
     }))
   }
 
@@ -188,19 +217,33 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
     }
   }
 
-  const downloadItems: DownloadItem[] = results
-    .filter(r => r.candidates.length > 0 && r.candidates[0].confidence === 'alta')
-    .map((r) => {
-      const c = r.candidates[0]
-      return {
-        characterId: c.id,
-        name: r.searchedName,
-        franchise: r.searchedFranchise,
-        imageUrl: c.imageLarge,
-        confidence: 'alta' as const,
-        score: c.score,
-      }
-    })
+  const downloadItems: DownloadItem[] = [
+    ...results
+      .filter(r => r.candidates.length > 0 && r.candidates[0].confidence === 'alta')
+      .map((r) => {
+        const c = r.candidates[0]
+        return {
+          characterId: c.id,
+          name: r.searchedName,
+          franchise: r.searchedFranchise,
+          imageUrl: c.imageLarge,
+          confidence: 'alta' as const,
+          score: c.score,
+        }
+      }),
+    ...results
+      .filter(r => r.danbooruImages.length > 0)
+      .flatMap((r) =>
+        r.danbooruImages.map((img) => ({
+          characterId: img.characterId,
+          name: r.searchedName,
+          franchise: img.franchise,
+          imageUrl: img.url,
+          confidence: 'alta' as const,
+          score: img.score,
+        }))
+      ),
+  ]
 
   const encontrados = results.filter(r => r.status === 'encontrado').length
   const revisar = results.filter(r => r.status === 'revisar').length
@@ -399,14 +442,93 @@ export function ImageBatchSearch({ characters, selectedIds }: { characters: Char
                     </div>
                   )
                 })}
-                {!hasAnyImage && candidates.length === 0 && (
-                  <div className="col-span-3 rounded-lg border p-2 flex flex-col items-center justify-center bg-gray-800">
-                    <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">
-                      Sem imagem
-                    </div>
+              {!hasAnyImage && candidates.length === 0 && (
+                <div className="col-span-3 rounded-lg border p-2 flex flex-col items-center justify-center bg-gray-800">
+                  <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">
+                    Sem imagem
                   </div>
-                )}
+                </div>
+              )}
               </div>
+
+              {result.danbooruImages.length > 0 || result.danbooruError && (
+                <div className="mt-3 border-t border-gray-700 pt-2">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-bold text-[#e5e7eb]">Imagens alternativas (Danbooru)</span>
+                    {result.danbooruError && (
+                      <span className="text-xs text-[#f87171]">Erro: {result.danbooruError}</span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {result.danbooruImages.map((img) => (
+                      <div
+                        key={img.id}
+                        className="rounded-lg border p-2 flex flex-col gap-1 bg-gray-800 border-gray-600"
+                      >
+                        <div className="aspect-[2/3] w-full rounded-md overflow-hidden bg-gray-700 flex-shrink-0">
+                          <img
+                            src={img.previewUrl}
+                            alt={img.tags.slice(0, 3).join(', ')}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-gray-400 truncate mb-1">
+                            {img.width} × {img.height} &bull; score {img.score}
+                          </p>
+                          <button
+                            onClick={() =>
+                              downloadOne({
+                                characterId: result.characterId,
+                                name: result.searchedName,
+                                franchise: img.franchise,
+                                imageUrl: img.url,
+                                confidence: 'alta',
+                                score: img.score,
+                              })
+                            }
+                            disabled={downloadingIndividual.has(img.characterId)}
+                            className="w-full px-2 py-1 rounded border text-xs transition-colors ${
+                              downloadingIndividual.has(img.characterId)
+                                ? 'border-[#e5e7eb] text-[#e5e7eb] bg-[#e5e7eb]/10 disabled:opacity-50 disabled:pointer-events-none'
+                                : 'border-[#e5e7eb] text-[#e5e7eb] hover:bg-[#e5e7eb]/10'
+                            }"
+                          >
+                            {downloadingIndividual.has(img.characterId)
+                              ? 'Baixando...'
+                              : 'Baixar (Danbooru)'}
+                          </button>
+                          {result.downloaded && (
+                            <span
+                              className={`text-[10px] font-bold ml-2 px-1.5 py-0.5 rounded border ${
+                                result.downloaded === 'baixado'
+                                  ? 'text-[#4ade80] border-[#16a34a]/50'
+                                  : result.downloaded === 'ignorado'
+                                    ? 'text-[#fbbf24] border-[#f59e0b]/50'
+                                    : 'text-[#f87171] border-[#ef4444]/50'
+                              }`}
+                            >
+                              {result.downloaded === 'baixado'
+                                ? 'Salvo'
+                                : result.downloaded === 'ignorado'
+                                  ? 'Já existe'
+                                  : 'Falha'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {result.danbooruImages.length === 0 && !result.danbooruError && (
+                      <div className="col-span-3 rounded-lg border p-2 flex flex-col items-center justify-center bg-gray-800">
+                        <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">
+                          Nenhuma alternativa encontrada na Danbooru.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div className="flex gap-2 mt-2">
                 {result.status !== 'encontrado' && (

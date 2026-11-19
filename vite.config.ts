@@ -19,6 +19,18 @@ export default defineConfig({
             proxyReq.setHeader('User-Agent', 'AnimePull/1.0')
           })
         }
+      },
+      '/api/danbooru': {
+        target: 'https://danbooru.donmai.us',
+        changeOrigin: true,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('Proxy error:', err)
+          })
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            proxyReq.setHeader('User-Agent', 'AnimePull/1.0')
+          })
+        }
       }
     },
     configureServer: (server) => {
