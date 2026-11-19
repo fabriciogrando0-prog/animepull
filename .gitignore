@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Imagens locais do Image Collector (não versionadas)
+public/images/*
+!public/images/metadata.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
