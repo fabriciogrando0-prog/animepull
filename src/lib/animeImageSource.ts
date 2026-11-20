@@ -26,6 +26,10 @@ function normalizeTag(text: string): string {
   return text.toLowerCase().trim().replace(/\s+/g, '_').replace(/[^\w]/g, '')
 }
 
+const DANBOORU_CHAR_TAG_OVERRIDES: Record<string, string> = {
+  luffy_monkey: 'monkey_d_luffy',
+}
+
 export async function searchDanbooruImages(
   characterName: string,
   franchise: string | null,
@@ -36,8 +40,9 @@ export async function searchDanbooruImages(
   }
 
   const charTag = normalizeTag(characterName)
+  const resolvedCharTag = DANBOORU_CHAR_TAG_OVERRIDES[charTag] || charTag
   const franchiseTag = normalizeTag(franchise)
-  const tags = `${charTag} ${franchiseTag} rating:safe`
+  const tags = `${resolvedCharTag} ${franchiseTag} rating:safe`
 
   try {
     const response = await fetch(
