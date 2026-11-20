@@ -63,8 +63,8 @@ export async function searchDanbooruImages(
       const rating = post.rating
       if (rating !== 's') continue
 
-      const width = post.width || 0
-      const height = post.height || 0
+      const width = post.image_width || 0
+      const height = post.image_height || 0
       if (width < MIN_WIDTH || height < MIN_HEIGHT) continue
 
       seenUrls.add(fileUrl)
